@@ -323,7 +323,7 @@ interface PgTableOptions {
 
 declare class Knex<TRecord extends {} = any, TResult = unknown[]> extends Knex.QueryBuilder<TRecord, TResult>, EventEmitter {
   constructor(client: Knex.Client)
-  table: <TTable extends Knex.TableNames>(tableName: TTable, options?: TableOptions) => Knex.QueryBuilder<Knex.TableType<TTable>, DeferredKeySelection<Knex.ResolveTableType<Knex.TableType<TTable>>, never>[]>
+  table: <TRecord2 = TRecord, TResult2 = DeferredKeySelection<TRecord2, never>[]>(tableName: Knex.TableDescriptor | Knex.AliasDict, options?: TableOptions) => Knex.QueryBuilder<TRecord2, TResult2>
 
   raw: Knex.RawBuilder<TRecord>;
 
@@ -849,9 +849,7 @@ export declare namespace Knex {
     ): QueryBuilder<TRecord, TResult2>;
   }
 
-  interface Select<TRecord extends {} = any, TResult = unknown[]>
-    extends AliasQueryBuilder<TRecord, TResult>,
-      ColumnNameQueryBuilder<TRecord, TResult> {
+  interface Select<TRecord extends {} = any, TResult = unknown[]> extends AliasQueryBuilder<TRecord, TResult>, ColumnNameQueryBuilder<TRecord, TResult> {
     (): QueryBuilder<TRecord, TResult>;
 
     <TResult2 = ArrayIfAlready<TResult, any>, TInnerRecord = any, TInnerResult = any>(
@@ -1313,19 +1311,9 @@ export declare namespace Knex {
   interface ColumnNameQueryBuilder<TRecord = any, TResult = unknown[]> {
     // When all columns are known to be keys of original record,
     // we can extend our selection by these columns
-    (columnName: '*'): QueryBuilder<
-      TRecord,
-      ArrayIfAlready<TResult, DeferredKeySelection<TRecord, string>>
-    >;
+    (columnName: '*'): QueryBuilder<TRecord, ArrayIfAlready<TResult, DeferredKeySelection<TRecord, string>>>;
 
-    <
-      ColNameUT extends keyof ResolveTableType<TRecord>,
-      TResult2 = DeferredKeySelection.Augment<
-        UnwrapArrayMember<TResult>,
-        ResolveTableType<TRecord>,
-        ColNameUT & string
-      >[]
-    >(
+    <ColNameUT extends keyof ResolveTableType<TRecord>, TResult2 = DeferredKeySelection.Augment<UnwrapArrayMember<TResult>, ResolveTableType<TRecord>, ColNameUT & string>[]>(
       ...columnNames: readonly ColNameUT[]
     ): QueryBuilder<TRecord, TResult2>;
 
@@ -1437,12 +1425,7 @@ export declare namespace Knex {
     ...args: any[]
   ) => void;
 
-  interface QueryBuilder<
-    TRecord extends {} = any,
-    TResult = any
-  >
-    extends QueryInterface<TRecord, TResult>,
-      ChainableInterface<ResolveResult<TResult>> {
+  interface QueryBuilder<TRecord extends {} = any, TResult = any> extends QueryInterface<TRecord, TResult>, ChainableInterface<ResolveResult<TResult>> {
     client: Client;
     or: QueryBuilder<TRecord, TResult>;
     not: QueryBuilder<TRecord, TResult>;
