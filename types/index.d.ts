@@ -1384,8 +1384,6 @@ export declare namespace Knex {
     timeout(ms: number, options?: {cancel?: boolean}): Raw<TResult>;
     wrap<TResult2 = TResult>(before: string, after: string): Raw<TResult>;
     toSQL(): Sql;
-    queryContext(context: any): Raw<TResult>;
-    queryContext(): any;
   }
 
   interface RawBuilder<TRecord extends {} = any, TResult = any> {
@@ -1465,9 +1463,6 @@ export declare namespace Knex {
     toSQL(): Sql;
 
     on(event: string, callback: Function): QueryBuilder<TRecord, TResult>;
-
-    queryContext(context: any): QueryBuilder<TRecord, TResult>;
-    queryContext(): any;
 
     clone(): QueryBuilder<TRecord, TResult>;
     timeout(ms: number, options?: {cancel?: boolean}): QueryBuilder<TRecord, TResult>;
@@ -1556,7 +1551,6 @@ export declare namespace Knex {
     dropSchemaIfExists(schemaName: string): SchemaBuilder;
     raw(statement: string): SchemaBuilder;
     withSchema(schemaName: string): SchemaBuilder;
-    queryContext(context: any): SchemaBuilder;
     toString(): string;
     toSQL(): Sql;
   }
@@ -1630,7 +1624,6 @@ export declare namespace Knex {
     dropPrimary(constraintName?: string): TableBuilder;
     dropIndex(columnNames: string | readonly (string | Raw)[], indexName?: string): TableBuilder;
     dropTimestamps(): ColumnBuilder;
-    queryContext(context: any): TableBuilder;
   }
 
   interface CreateTableBuilder extends TableBuilder {
@@ -1656,7 +1649,6 @@ export declare namespace Knex {
     nullable(): ColumnBuilder;
     comment(value: string): ColumnBuilder;
     alter(): ColumnBuilder;
-    queryContext(context: any): ColumnBuilder;
     withKeyName(keyName: string): ColumnBuilder;
   }
 
@@ -1689,7 +1681,7 @@ export declare namespace Knex {
     debug?: boolean;
     version?: string;
     connection?: Sqlite3ConnectionConfig;
-    postProcessResponse?: (result: any, queryContext: any) => any;
+    postProcessResponse?: (result: any) => any;
     useNullAsDefault?: boolean;
     log?: Logger;
   }
@@ -1754,10 +1746,7 @@ export declare namespace Knex {
     query(connection: any, obj: any): any;
     prepBindings(bindings: any): any;
     positionBindings(sql: any): any;
-    postProcessResponse(resp: any, queryContext: any): any;
-    wrapIdentifier(value: any, queryContext: any): any;
-    customWrapIdentifier(value: any, origImpl: any, queryContext: any): any;
-    wrapIdentifierImpl(value: any): string;
+    postProcessResponse(resp: any): any;
     driver: any;
     acquireConnection(): any;
     releaseConnection(connection: any): any;
