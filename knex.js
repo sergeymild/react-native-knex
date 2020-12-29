@@ -5,7 +5,7 @@
 //     For details and documentation:
 //     http://knexjs.org
 
-import Knex from './lib/knex';
-import NativeClient from './lib/dialects/sqlite3/sqlite-native'
-export { NativeClient }
-export default Knex
+const Knex = require('./lib/knex')
+const NativeClient = require('./lib/dialects/sqlite3/sqlite-native')
+const SQLite3Client = require('./lib/dialects/sqlite3/sqlite3')
+module.exports = {Knex, NativeClient, SQLite3Client}

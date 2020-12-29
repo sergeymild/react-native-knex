@@ -9,10 +9,9 @@
 /// <reference types="node" />
 
 
-import EventEmitter from '../lib/EventEmitter'
-import ResultTypes from './result'
-
-import { Tables } from './tables';
+const EventEmitter = require('../lib/EventEmitter')
+const ResultTypes = require('./result')
+const { Tables } = require('./tables')
 
 // # Generic type-level utilities
 
@@ -376,7 +375,7 @@ declare function Knex<TRecord extends {} = any, TResult = unknown[]>(
   config: Knex.Client
 ): Knex<TRecord, TResult>;
 
-declare namespace Knex {
+export declare namespace Knex {
   //
   // Utility Types
   //
@@ -1906,8 +1905,6 @@ declare namespace Knex {
     cancelQuery(): void;
   }
 
-  class NativeClient extends Client {}
-
   class QueryBuilder {
     static extend(
       methodName: string,
@@ -1921,4 +1918,5 @@ declare namespace Knex {
   export class KnexTimeoutError extends Error {}
 }
 
-export = Knex;
+export class NativeClient extends Client {}
+export class SQLite3Client extends Client {}
