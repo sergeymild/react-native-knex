@@ -25,9 +25,6 @@ module.exports = function (knex) {
     require('./builder/transaction')(knex);
     require('./builder/deletes')(knex);
     require('./builder/additional')(knex);
-    require('./datatype/bigint')(knex);
-    require('./datatype/decimal')(knex);
-    require('./datatype/double')(knex);
 
     describe('knex.destroy', function () {
       it('should allow destroying the pool with knex.destroy', function () {
@@ -42,21 +39,6 @@ module.exports = function (knex) {
           .then(function () {
             expect(spy).to.have.callCount(1);
           });
-      });
-    });
-  });
-
-  describe('knex.initialize', function () {
-    it('should allow initialize the pool with knex.initialize', function () {
-      expect(knex.client.pool).to.equal(undefined);
-      knex.initialize();
-      expect(knex.client.pool.destroyed).to.equal(false);
-      const waitForDestroy = knex.destroy();
-      expect(knex.client.pool.destroyed).to.equal(true);
-      return waitForDestroy.then(() => {
-        expect(knex.client.pool).to.equal(undefined);
-        knex.initialize();
-        expect(knex.client.pool.destroyed).to.equal(false);
       });
     });
   });

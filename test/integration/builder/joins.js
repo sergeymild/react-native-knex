@@ -1898,7 +1898,6 @@ module.exports = function (knex) {
           .dropTableIfExists(joinName)
           .then(() =>
             knex.schema.createTable(joinName, (table) => {
-              table.bigint('id');
               table.string('email');
               table.integer('testcolumn');
             })

@@ -21,40 +21,10 @@ module.exports = function (knex) {
         .from('accounts')
         .testSql(function (tester) {
           tester(
-            'mysql',
-            'select `id` from `accounts` order by `id` asc',
-            [],
-            [1, 2, 3, 4, 5, 7]
-          );
-          tester(
-            'pg',
-            'select "id" from "accounts" order by "id" asc',
-            [],
-            ['1', '2', '3', '4', '5', '7']
-          );
-          tester(
-            'pg-redshift',
-            'select "id" from "accounts" order by "id" asc',
-            [],
-            ['1', '2', '3', '4', '5', '6']
-          );
-          tester(
             'sqlite3',
             'select `id` from `accounts` order by `id` asc',
             [],
             [1, 2, 3, 4, 5, 6]
-          );
-          tester(
-            'oracledb',
-            'select "id" from "accounts" order by "id" asc',
-            [],
-            [1, 2, 3, 4, 5, 7]
-          );
-          tester(
-            'mssql',
-            'select [id] from [accounts] order by [id] asc',
-            [],
-            ['1', '2', '3', '4', '5', '7']
           );
         });
     });
@@ -66,40 +36,10 @@ module.exports = function (knex) {
         .orderBy('accounts.id')
         .testSql(function (tester) {
           tester(
-            'mysql',
-            'select `accounts`.`id` from `accounts` order by `accounts`.`id` asc',
-            [],
-            [1, 2, 3, 4, 5, 7]
-          );
-          tester(
-            'pg',
-            'select "accounts"."id" from "accounts" order by "accounts"."id" asc',
-            [],
-            ['1', '2', '3', '4', '5', '7']
-          );
-          tester(
-            'pg-redshift',
-            'select "accounts"."id" from "accounts" order by "accounts"."id" asc',
-            [],
-            ['1', '2', '3', '4', '5', '6']
-          );
-          tester(
             'sqlite3',
             'select `accounts`.`id` from `accounts` order by `accounts`.`id` asc',
             [],
             [1, 2, 3, 4, 5, 6]
-          );
-          tester(
-            'oracledb',
-            'select "accounts"."id" from "accounts" order by "accounts"."id" asc',
-            [],
-            [1, 2, 3, 4, 5, 7]
-          );
-          tester(
-            'mssql',
-            'select [accounts].[id] from [accounts] order by [accounts].[id] asc',
-            [],
-            ['1', '2', '3', '4', '5', '7']
           );
         });
     });
@@ -112,40 +52,10 @@ module.exports = function (knex) {
         .offset(2)
         .testSql(function (tester) {
           tester(
-            'mysql',
-            'select `id` from `accounts` order by `id` asc limit 18446744073709551615 offset ?',
-            [2],
-            [3, 4, 5, 7]
-          );
-          tester(
-            'pg',
-            'select "id" from "accounts" order by "id" asc offset ?',
-            [2],
-            ['3', '4', '5', '7']
-          );
-          tester(
-            'pg-redshift',
-            'select "id" from "accounts" order by "id" asc offset ?',
-            [2],
-            ['3', '4', '5', '6']
-          );
-          tester(
             'sqlite3',
             'select `id` from `accounts` order by `id` asc limit ? offset ?',
             [-1, 2],
             [3, 4, 5, 6]
-          );
-          tester(
-            'oracledb',
-            'select * from (select row_.*, ROWNUM rownum_ from (select "id" from "accounts" order by "id" asc) row_ where rownum <= ?) where rownum_ > ?',
-            [10000000000002, 2],
-            [3, 4, 5, 7]
-          );
-          tester(
-            'mssql',
-            'select [id] from [accounts] order by [id] asc offset ? rows',
-            [2],
-            ['3', '4', '5', '7']
           );
         });
     });
@@ -157,40 +67,10 @@ module.exports = function (knex) {
         .from('accounts')
         .testSql(function (tester) {
           tester(
-            'mysql',
-            'select `id`, `first_name` from `accounts` order by `id` asc limit ?',
-            [1],
-            { id: 1, first_name: 'Test' }
-          );
-          tester(
-            'pg',
-            'select "id", "first_name" from "accounts" order by "id" asc limit ?',
-            [1],
-            { id: '1', first_name: 'Test' }
-          );
-          tester(
-            'pg-redshift',
-            'select "id", "first_name" from "accounts" order by "id" asc limit ?',
-            [1],
-            { id: '1', first_name: 'Test' }
-          );
-          tester(
             'sqlite3',
             'select `id`, `first_name` from `accounts` order by `id` asc limit ?',
             [1],
             { id: 1, first_name: 'Test' }
-          );
-          tester(
-            'oracledb',
-            'select * from (select "id", "first_name" from "accounts" order by "id" asc) where rownum <= ?',
-            [1],
-            { id: 1, first_name: 'Test' }
-          );
-          tester(
-            'mssql',
-            'select top (?) [id], [first_name] from [accounts] order by [id] asc',
-            [1],
-            { id: '1', first_name: 'Test' }
           );
         });
     });
@@ -332,26 +212,6 @@ module.exports = function (knex) {
         });
     });
 
-    it('uses `orderBy`', function () {
-      return knex('accounts')
-        .pluck('id')
-        .orderBy('id', 'desc')
-        .testSql(function (tester) {
-          tester(
-            'oracledb',
-            'select "id" from "accounts" order by "id" desc',
-            [],
-            [7, 5, 4, 3, 2, 1]
-          );
-          tester(
-            'mssql',
-            'select [id] from [accounts] order by [id] desc',
-            [],
-            ['7', '5', '4', '3', '2', '1']
-          );
-        });
-    });
-
     describe('simple "where" cases', function () {
       it('allows key, value', function () {
         return knex('accounts')
@@ -359,63 +219,8 @@ module.exports = function (knex) {
           .select('first_name', 'last_name')
           .testSql(function (tester) {
             tester(
-              'mysql',
-              'select `first_name`, `last_name` from `accounts` where `id` = ?',
-              [1],
-              [
-                {
-                  first_name: 'Test',
-                  last_name: 'User',
-                },
-              ]
-            );
-            tester(
-              'pg',
-              'select "first_name", "last_name" from "accounts" where "id" = ?',
-              [1],
-              [
-                {
-                  first_name: 'Test',
-                  last_name: 'User',
-                },
-              ]
-            );
-            tester(
-              'pg-redshift',
-              'select "first_name", "last_name" from "accounts" where "id" = ?',
-              [1],
-              [
-                {
-                  first_name: 'Test',
-                  last_name: 'User',
-                },
-              ]
-            );
-            tester(
               'sqlite3',
               'select `first_name`, `last_name` from `accounts` where `id` = ?',
-              [1],
-              [
-                {
-                  first_name: 'Test',
-                  last_name: 'User',
-                },
-              ]
-            );
-            tester(
-              'oracledb',
-              'select "first_name", "last_name" from "accounts" where "id" = ?',
-              [1],
-              [
-                {
-                  first_name: 'Test',
-                  last_name: 'User',
-                },
-              ]
-            );
-            tester(
-              'mssql',
-              'select [first_name], [last_name] from [accounts] where [id] = ?',
               [1],
               [
                 {
@@ -433,63 +238,8 @@ module.exports = function (knex) {
           .select('first_name', 'last_name')
           .testSql(function (tester) {
             tester(
-              'mysql',
-              'select `first_name`, `last_name` from `accounts` where `id` = ?',
-              [1],
-              [
-                {
-                  first_name: 'Test',
-                  last_name: 'User',
-                },
-              ]
-            );
-            tester(
-              'pg',
-              'select "first_name", "last_name" from "accounts" where "id" = ?',
-              [1],
-              [
-                {
-                  first_name: 'Test',
-                  last_name: 'User',
-                },
-              ]
-            );
-            tester(
-              'pg-redshift',
-              'select "first_name", "last_name" from "accounts" where "id" = ?',
-              [1],
-              [
-                {
-                  first_name: 'Test',
-                  last_name: 'User',
-                },
-              ]
-            );
-            tester(
               'sqlite3',
               'select `first_name`, `last_name` from `accounts` where `id` = ?',
-              [1],
-              [
-                {
-                  first_name: 'Test',
-                  last_name: 'User',
-                },
-              ]
-            );
-            tester(
-              'oracledb',
-              'select "first_name", "last_name" from "accounts" where "id" = ?',
-              [1],
-              [
-                {
-                  first_name: 'Test',
-                  last_name: 'User',
-                },
-              ]
-            );
-            tester(
-              'mssql',
-              'select [first_name], [last_name] from [accounts] where [id] = ?',
               [1],
               [
                 {
@@ -507,33 +257,8 @@ module.exports = function (knex) {
           .select(['email', 'logins'])
           .testSql(function (tester) {
             tester(
-              'mysql',
-              'select `email`, `logins` from `accounts` where `id` > ?',
-              [1]
-            );
-            tester(
-              'pg',
-              'select "email", "logins" from "accounts" where "id" > ?',
-              [1]
-            );
-            tester(
-              'pg-redshift',
-              'select "email", "logins" from "accounts" where "id" > ?',
-              [1]
-            );
-            tester(
               'sqlite3',
               'select `email`, `logins` from `accounts` where `id` > ?',
-              [1]
-            );
-            tester(
-              'oracledb',
-              'select "email", "logins" from "accounts" where "id" > ?',
-              [1]
-            );
-            tester(
-              'mssql',
-              'select [email], [logins] from [accounts] where [id] > ?',
               [1]
             );
           });
@@ -545,107 +270,12 @@ module.exports = function (knex) {
           .select('*')
           .testSql(function (tester) {
             tester(
-              'mysql',
-              'select * from `accounts` where `id` = ?',
-              [1],
-              [
-                {
-                  id: 1,
-                  first_name: 'Test',
-                  last_name: 'User',
-                  email: 'test@example.com',
-                  logins: 1,
-                  balance: 0,
-                  about: 'Lorem ipsum Dolore labore incididunt enim.',
-                  created_at: TEST_TIMESTAMP,
-                  updated_at: TEST_TIMESTAMP,
-                  phone: null,
-                },
-              ]
-            );
-            tester(
-              'pg',
-              'select * from "accounts" where "id" = ?',
-              [1],
-              [
-                {
-                  id: '1',
-                  first_name: 'Test',
-                  last_name: 'User',
-                  email: 'test@example.com',
-                  logins: 1,
-                  balance: 0,
-                  about: 'Lorem ipsum Dolore labore incididunt enim.',
-                  created_at: TEST_TIMESTAMP,
-                  updated_at: TEST_TIMESTAMP,
-                  phone: null,
-                },
-              ]
-            );
-            tester(
-              'pg-redshift',
-              'select * from "accounts" where "id" = ?',
-              [1],
-              [
-                {
-                  id: '1',
-                  first_name: 'Test',
-                  last_name: 'User',
-                  email: 'test@example.com',
-                  logins: 1,
-                  balance: 0,
-                  about: 'Lorem ipsum Dolore labore incididunt enim.',
-                  created_at: TEST_TIMESTAMP,
-                  updated_at: TEST_TIMESTAMP,
-                  phone: null,
-                },
-              ]
-            );
-            tester(
               'sqlite3',
               'select * from `accounts` where `id` = ?',
               [1],
               [
                 {
                   id: 1,
-                  first_name: 'Test',
-                  last_name: 'User',
-                  email: 'test@example.com',
-                  logins: 1,
-                  balance: 0,
-                  about: 'Lorem ipsum Dolore labore incididunt enim.',
-                  created_at: TEST_TIMESTAMP,
-                  updated_at: TEST_TIMESTAMP,
-                  phone: null,
-                },
-              ]
-            );
-            tester(
-              'oracledb',
-              'select * from "accounts" where "id" = ?',
-              [1],
-              [
-                {
-                  id: 1,
-                  first_name: 'Test',
-                  last_name: 'User',
-                  email: 'test@example.com',
-                  logins: 1,
-                  balance: 0,
-                  about: 'Lorem ipsum Dolore labore incididunt enim.',
-                  created_at: TEST_TIMESTAMP,
-                  updated_at: TEST_TIMESTAMP,
-                  phone: null,
-                },
-              ]
-            );
-            tester(
-              'mssql',
-              'select * from [accounts] where [id] = ?',
-              [1],
-              [
-                {
-                  id: '1',
                   first_name: 'Test',
                   last_name: 'User',
                   email: 'test@example.com',
@@ -667,38 +297,8 @@ module.exports = function (knex) {
           .select('first_name', 'email')
           .testSql(function (tester) {
             tester(
-              'mysql',
-              'select `first_name`, `email` from `accounts` where `id` is null',
-              [],
-              []
-            );
-            tester(
-              'pg',
-              'select "first_name", "email" from "accounts" where "id" is null',
-              [],
-              []
-            );
-            tester(
-              'pg-redshift',
-              'select "first_name", "email" from "accounts" where "id" is null',
-              [],
-              []
-            );
-            tester(
               'sqlite3',
               'select `first_name`, `email` from `accounts` where `id` is null',
-              [],
-              []
-            );
-            tester(
-              'oracledb',
-              'select "first_name", "email" from "accounts" where "id" is null',
-              [],
-              []
-            );
-            tester(
-              'mssql',
-              'select [first_name], [email] from [accounts] where [id] is null',
               [],
               []
             );
@@ -710,27 +310,12 @@ module.exports = function (knex) {
           .where({ id: 0 })
           .select()
           .testSql(function (tester) {
-            tester('mysql', 'select * from `accounts` where `id` = ?', [0], []);
-            tester('pg', 'select * from "accounts" where "id" = ?', [0], []);
-            tester(
-              'pg-redshift',
-              'select * from "accounts" where "id" = ?',
-              [0],
-              []
-            );
             tester(
               'sqlite3',
               'select * from `accounts` where `id` = ?',
               [0],
               []
             );
-            tester(
-              'oracledb',
-              'select * from "accounts" where "id" = ?',
-              [0],
-              []
-            );
-            tester('mssql', 'select * from [accounts] where [id] = ?', [0], []);
           });
       });
     });
@@ -777,56 +362,22 @@ module.exports = function (knex) {
       ]);
     });
 
-    it('supports "distinct on"', async function () {
+    it('supports "distinct on"', async function() {
       const builder = knex('accounts')
         .select('email', 'logins')
         .distinctOn('id')
         .orderBy('id');
-      if (knex.client.driverName !== 'pg') {
-        let error;
-        try {
-          await builder;
-        } catch (e) {
-          error = e;
-        }
-        expect(error.message).to.eql(
-          '.distinctOn() is currently only supported on PostgreSQL'
-        );
-        return;
+
+      let error;
+      try {
+        await builder;
+      } catch (e) {
+        error = e;
       }
-      return builder.testSql(function (tester) {
-        tester(
-          'pg',
-          'select distinct on ("id") "email", "logins" from "accounts" order by "id" asc',
-          [],
-          [
-            {
-              email: 'test@example.com',
-              logins: 1,
-            },
-            {
-              email: 'test2@example.com',
-              logins: 1,
-            },
-            {
-              email: 'test3@example.com',
-              logins: 2,
-            },
-            {
-              email: 'test4@example.com',
-              logins: 2,
-            },
-            {
-              email: 'test5@example.com',
-              logins: 2,
-            },
-            {
-              email: 'test6@example.com',
-              logins: 2,
-            },
-          ]
-        );
-      });
+      expect(error.message).to.eql(
+        '.distinctOn() is currently only supported on PostgreSQL',
+      );
+
     });
 
     it('does "orWhere" cases', function () {
@@ -866,187 +417,39 @@ module.exports = function (knex) {
     });
 
     it('handles multi-column "where in" cases', function () {
-      if (knex.client.driverName !== 'mssql') {
-        return knex('composite_key_test')
-          .whereIn(
-            ['column_a', 'column_b'],
-            [
-              [1, 1],
-              [1, 2],
-            ]
-          )
-          .orderBy('status', 'desc')
-          .select()
-          .testSql(function (tester) {
-            tester(
-              'mysql',
-              'select * from `composite_key_test` where (`column_a`, `column_b`) in ((?, ?), (?, ?)) order by `status` desc',
-              [1, 1, 1, 2],
-              [
-                {
-                  column_a: 1,
-                  column_b: 1,
-                  details: 'One, One, One',
-                  status: 1,
-                },
-                {
-                  column_a: 1,
-                  column_b: 2,
-                  details: 'One, Two, Zero',
-                  status: 0,
-                },
-              ]
-            );
-            tester(
-              'pg',
-              'select * from "composite_key_test" where ("column_a", "column_b") in ((?, ?), (?, ?)) order by "status" desc',
-              [1, 1, 1, 2],
-              [
-                {
-                  column_a: 1,
-                  column_b: 1,
-                  details: 'One, One, One',
-                  status: 1,
-                },
-                {
-                  column_a: 1,
-                  column_b: 2,
-                  details: 'One, Two, Zero',
-                  status: 0,
-                },
-              ]
-            );
-            tester(
-              'pg-redshift',
-              'select * from "composite_key_test" where ("column_a", "column_b") in ((?, ?), (?, ?)) order by "status" desc',
-              [1, 1, 1, 2],
-              [
-                {
-                  column_a: 1,
-                  column_b: 1,
-                  details: 'One, One, One',
-                  status: 1,
-                },
-                {
-                  column_a: 1,
-                  column_b: 2,
-                  details: 'One, Two, Zero',
-                  status: 0,
-                },
-              ]
-            );
-            tester(
-              'oracledb',
-              'select * from "composite_key_test" where ("column_a", "column_b") in ((?, ?), (?, ?)) order by "status" desc',
-              [1, 1, 1, 2],
-              [
-                {
-                  column_a: 1,
-                  column_b: 1,
-                  details: 'One, One, One',
-                  status: 1,
-                },
-                {
-                  column_a: 1,
-                  column_b: 2,
-                  details: 'One, Two, Zero',
-                  status: 0,
-                },
-              ]
-            );
-            tester(
-              'sqlite3',
-              'select * from `composite_key_test` where (`column_a`, `column_b`) in ( values (?, ?), (?, ?)) order by `status` desc',
-              [1, 1, 1, 2],
-              [
-                {
-                  column_a: 1,
-                  column_b: 1,
-                  details: 'One, One, One',
-                  status: 1,
-                },
-                {
-                  column_a: 1,
-                  column_b: 2,
-                  details: 'One, Two, Zero',
-                  status: 0,
-                },
-              ]
-            );
-          });
-      }
-    });
 
-    it('handles multi-column "where in" cases with where', function () {
-      if (
-        knex.client.driverName !== 'sqlite3' &&
-        knex.client.driverName !== 'mssql'
-      ) {
-        return knex('composite_key_test')
-          .where('status', 1)
-          .whereIn(
-            ['column_a', 'column_b'],
+      return knex('composite_key_test')
+        .whereIn(
+          ['column_a', 'column_b'],
+          [
+            [1, 1],
+            [1, 2],
+          ],
+        )
+        .orderBy('status', 'desc')
+        .select()
+        .testSql(function(tester) {
+          tester(
+            'sqlite3',
+            'select * from `composite_key_test` where (`column_a`, `column_b`) in ( values (?, ?), (?, ?)) order by `status` desc',
+            [1, 1, 1, 2],
             [
-              [1, 1],
-              [1, 2],
-            ]
-          )
-          .select()
-          .testSql(function (tester) {
-            tester(
-              'mysql',
-              'select * from `composite_key_test` where `status` = ? and (`column_a`, `column_b`) in ((?, ?), (?, ?))',
-              [1, 1, 1, 1, 2],
-              [
-                {
-                  column_a: 1,
-                  column_b: 1,
-                  details: 'One, One, One',
-                  status: 1,
-                },
-              ]
-            );
-            tester(
-              'pg',
-              'select * from "composite_key_test" where "status" = ? and ("column_a", "column_b") in ((?, ?), (?, ?))',
-              [1, 1, 1, 1, 2],
-              [
-                {
-                  column_a: 1,
-                  column_b: 1,
-                  details: 'One, One, One',
-                  status: 1,
-                },
-              ]
-            );
-            tester(
-              'pg-redshift',
-              'select * from "composite_key_test" where "status" = ? and ("column_a", "column_b") in ((?, ?), (?, ?))',
-              [1, 1, 1, 1, 2],
-              [
-                {
-                  column_a: 1,
-                  column_b: 1,
-                  details: 'One, One, One',
-                  status: 1,
-                },
-              ]
-            );
-            tester(
-              'oracledb',
-              'select * from "composite_key_test" where "status" = ? and ("column_a", "column_b") in ((?, ?), (?, ?))',
-              [1, 1, 1, 1, 2],
-              [
-                {
-                  column_a: 1,
-                  column_b: 1,
-                  details: 'One, One, One',
-                  status: 1,
-                },
-              ]
-            );
-          });
-      }
+              {
+                column_a: 1,
+                column_b: 1,
+                details: 'One, One, One',
+                status: 1,
+              },
+              {
+                column_a: 1,
+                column_b: 2,
+                details: 'One, Two, Zero',
+                status: 0,
+              },
+            ],
+          );
+        });
+
     });
 
     it('handles "where exists"', function () {
@@ -1134,21 +537,6 @@ module.exports = function (knex) {
       expect(raw2.bindings).to.eql(expected2);
     });
 
-    it('always returns the response object from raw', function () {
-      if (knex.client.driverName === 'pg') {
-        return knex.raw('select id from accounts').then(function (resp) {
-          assert(Array.isArray(resp.rows) === true);
-        });
-      }
-    });
-
-    it('properly escapes identifiers, #737', function () {
-      if (knex.client.driverName === 'pg') {
-        const query = knex.select('id","name').from('test').toSQL();
-        assert(query.sql === 'select "id"",""name" from "test"');
-      }
-    });
-
     it('knex.ref() as column in .select()', function () {
       return knex('accounts')
         .select([knex.ref('accounts.id').as('userid')])
@@ -1163,286 +551,6 @@ module.exports = function (knex) {
 
     it.skip('select forUpdate().first() bug in oracle (--------- TODO: FIX)', function () {
       return knex('accounts').where('id', 1).forUpdate().first();
-    });
-
-    it('select for update locks selected row', function () {
-      if (knex.client.driverName === 'sqlite3') {
-        return this.skip();
-      }
-
-      return knex('test_default_table')
-        .insert({ string: 'making sure there is a row to lock' })
-        .then(() => {
-          return knex
-            .transaction((trx) => {
-              // select all from test table and lock
-              return trx('test_default_table')
-                .forUpdate()
-                .then((res) => {
-                  // try to select stuff from table in other connection should just hang...
-                  return knex('test_default_table').forUpdate().timeout(100);
-                });
-            })
-            .then((res) => {
-              expect('Second query should have timed out').to.be.false;
-            })
-            .catch((err) => {
-              expect(err.message).to.be.contain(
-                'Defined query timeout of 100ms exceeded when running query'
-              );
-            });
-        });
-    });
-
-    it('select for update locks only some tables, #2834', function () {
-      if (knex.client.driverName !== 'pg') {
-        return this.skip();
-      }
-
-      return knex('test_default_table')
-        .insert({ string: 'making sure there is a row to lock', tinyint: 1 })
-        .then(() => {
-          return knex('test_default_table2')
-            .insert({
-              string: 'making sure there is a row to lock',
-              tinyint: 1,
-            })
-            .then(() => {
-              return knex
-                .transaction((trx) => {
-                  // select all from two test tables and lock only one table
-                  return trx('test_default_table')
-                    .innerJoin(
-                      'test_default_table2',
-                      'test_default_table.tinyint',
-                      'test_default_table2.tinyint'
-                    )
-                    .forUpdate('test_default_table')
-                    .then((res) => {
-                      // try to select stuff from unlocked table should not hang...
-                      return knex('test_default_table2')
-                        .forUpdate()
-                        .timeout(150);
-                    })
-                    .then((res) => {
-                      // try to select stuff from table in other connection should just hang...
-                      return knex('test_default_table')
-                        .forUpdate()
-                        .timeout(100);
-                    });
-                })
-                .then((res) => {
-                  expect('Second query should have timed out').to.be.false;
-                })
-                .catch((err) => {
-                  expect(err.message).to.be.contain(
-                    'Defined query timeout of 100ms exceeded when running query'
-                  );
-                });
-            });
-        });
-    });
-
-    it('select for share prevents updating in other transaction', function () {
-      if (
-        knex.client.driverName === 'sqlite3' ||
-        knex.client.driverName === 'oracledb'
-      ) {
-        return this.skip();
-      }
-
-      return knex('test_default_table')
-        .insert({ string: 'making sure there is a row to lock' })
-        .then(() => {
-          return knex
-            .transaction((trx) => {
-              // select all from test table and lock
-              return trx('test_default_table')
-                .forShare()
-                .then((res) => {
-                  // try to update row that was selected for share should just hang...
-                  return knex.transaction((trx2) => {
-                    return trx2('test_default_table')
-                      .update({ string: 'foo' })
-                      .timeout(100);
-                  });
-                });
-            })
-            .then((res) => {
-              expect('Second query should have timed out').to.be.false;
-            })
-            .catch((err) => {
-              // mssql fails because it tires to rollback at the same time when update query is running
-              // hopefully for share really works though...
-              if (knex.client.driverName == 'mssql') {
-                expect(err.message).to.be.contain(
-                  "Can't rollback transaction. There is a request in progress"
-                );
-              } else {
-                expect(err.message).to.be.contain(
-                  'Defined query timeout of 100ms exceeded when running query'
-                );
-              }
-            });
-        });
-    });
-
-    it('forUpdate().skipLocked() with order by should return the first non-locked row', async function () {
-      // Note: this test doesn't work properly on MySQL - see https://bugs.mysql.com/bug.php?id=67745
-      if (knex.client.driverName !== 'pg') {
-        return this.skip();
-      }
-
-      const rowName = 'row for skipLocked() test #1';
-      await knex('test_default_table').delete().where({ string: rowName });
-      await knex('test_default_table').insert([
-        { string: rowName, tinyint: 1 },
-        { string: rowName, tinyint: 2 },
-      ]);
-
-      const res = await knex.transaction(async (trx) => {
-        // lock the first row in the test
-        await trx('test_default_table')
-          .where({ string: rowName })
-          .orderBy('tinyint', 'asc')
-          .forUpdate()
-          .first();
-
-        // try to lock the next available row from outside of the transaction
-        return await knex('test_default_table')
-          .where({ string: rowName })
-          .orderBy('tinyint', 'asc')
-          .forUpdate()
-          .skipLocked()
-          .first();
-      });
-
-      // assert that we got the second row because the first one was locked
-      expect(res.tinyint).to.equal(2);
-    });
-
-    it('forUpdate().skipLocked() should return an empty set when all rows are locked', async function () {
-      if (
-        knex.client.driverName !== 'pg' &&
-        knex.client.driverName !== 'mysql'
-      ) {
-        return this.skip();
-      }
-
-      const rowName = 'row for skipLocked() test #2';
-      await knex('test_default_table').delete().where({ string: rowName });
-      await knex('test_default_table').insert([
-        { string: rowName, tinyint: 1 },
-        { string: rowName, tinyint: 2 },
-      ]);
-
-      const res = await knex.transaction(async (trx) => {
-        // lock all of the test rows
-        await trx('test_default_table').where({ string: rowName }).forUpdate();
-
-        // try to aquire the lock on one more row (which isn't available) from another transaction
-        return await knex('test_default_table')
-          .where({ string: rowName })
-          .forUpdate()
-          .skipLocked()
-          .first();
-      });
-
-      expect(res).to.be.undefined;
-    });
-
-    it('forUpdate().noWait() should throw an error immediately when a row is locked', async function () {
-      if (
-        knex.client.driverName !== 'pg' &&
-        knex.client.driverName !== 'mysql'
-      ) {
-        return this.skip();
-      }
-
-      const rowName = 'row for noWait() test';
-      await knex('test_default_table').delete().where({ string: rowName });
-      await knex('test_default_table').insert([
-        { string: rowName, tinyint: 1 },
-        { string: rowName, tinyint: 2 },
-      ]);
-
-      try {
-        await knex.transaction(async (trx) => {
-          // select and lock the first row from this test
-          // note: MySQL may lock both rows depending on how the results are fetched
-          await trx('test_default_table')
-            .where({ string: rowName })
-            .orderBy('tinyint', 'asc')
-            .forUpdate()
-            .first();
-
-          // try to lock it again (it should fail here)
-          await knex('test_default_table')
-            .where({ string: rowName })
-            .orderBy('tinyint', 'asc')
-            .forUpdate()
-            .noWait()
-            .first();
-        });
-
-        // fail the test if the query finishes with no errors
-        throw new Error(
-          'The query should have been cancelled when trying to select a locked row with .noWait()'
-        );
-      } catch (err) {
-        // check if we got the correct error from each db
-        switch (knex.client.driverName) {
-          case 'pg':
-            expect(err.message).to.contain('could not obtain lock on row');
-            break;
-          case 'mysql':
-          case 'mysql2':
-            // mysql
-            expect(err.message).to.contain(
-              'lock(s) could not be acquired immediately'
-            );
-            // mariadb
-            // TODO: detect if test is being run on mysql or mariadb to check for the correct error message
-            // expect(err.message).to.contain('Lock wait timeout exceeded');
-            break;
-          default:
-            // unsupported database
-            throw err;
-        }
-      }
-    });
-
-    it('select from subquery', async function () {
-      const subquery = knex.from('accounts').whereBetween('id', [3, 5]);
-      return knex
-        .pluck('id')
-        .orderBy('id')
-        .from(subquery)
-        .then(
-          (rows) => {
-            expect(rows).to.deep.equal([3, 4, 5]);
-            expect(knex.client.driverName).to.oneOf(['sqlite3', 'oracledb']);
-          },
-          (e) => {
-            switch (knex.client.driverName) {
-              case 'mysql':
-              case 'mysql2':
-                expect(e.errno).to.equal(1248);
-                break;
-              case 'pg':
-                expect(e.message).to.contain('must have an alias');
-                break;
-
-              case 'mssql':
-                expect(e.message).to.contain(
-                  "Incorrect syntax near the keyword 'order'"
-                );
-                break;
-              default:
-                throw e;
-            }
-          }
-        );
     });
   });
 };

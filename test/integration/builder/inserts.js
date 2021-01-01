@@ -801,7 +801,6 @@ module.exports = function (knex) {
         .createTable('test_default_table', function (qb) {
           qb.increments().primary();
           qb.string('string').defaultTo('hello');
-          qb.tinyint('tinyint').defaultTo(0);
           qb.text('text').nullable();
         })
         .then(function () {
@@ -857,7 +856,6 @@ module.exports = function (knex) {
         .createTable('test_default_table2', function (qb) {
           qb.increments().primary();
           qb.string('string').defaultTo('hello');
-          qb.tinyint('tinyint').defaultTo(0);
           qb.text('text').nullable();
         })
         .then(function () {

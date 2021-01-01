@@ -344,21 +344,6 @@ describe('SQLite SchemaBuilder', function () {
     );
   });
 
-  it('adding big incrementing id', function () {
-    tableSql = client
-      .schemaBuilder()
-      .table('users', function (table) {
-        table.bigIncrements('id');
-      })
-      .toSQL();
-
-    equal(1, tableSql.length);
-    equal(
-      tableSql[0].sql,
-      'alter table `users` add column `id` integer not null primary key autoincrement'
-    );
-  });
-
   it('adding string', function () {
     tableSql = client
       .schemaBuilder()
@@ -438,33 +423,6 @@ describe('SQLite SchemaBuilder', function () {
     equal(tableSql[0].sql, 'alter table `users` add column `foo` text');
   });
 
-  it('adding big integer', function () {
-    tableSql = client
-      .schemaBuilder()
-      .table('users', function (table) {
-        table.bigInteger('foo');
-      })
-      .toSQL();
-
-    equal(1, tableSql.length);
-    equal(tableSql[0].sql, 'alter table `users` add column `foo` bigint');
-  });
-
-  it('bigincrements works the same as increments for sqlite3', function () {
-    tableSql = client
-      .schemaBuilder()
-      .table('users', function (table) {
-        table.bigIncrements('foo');
-      })
-      .toSQL();
-
-    equal(1, tableSql.length);
-    equal(
-      tableSql[0].sql,
-      'alter table `users` add column `foo` integer not null primary key autoincrement'
-    );
-  });
-
   it('adding integer', function () {
     tableSql = client
       .schemaBuilder()
@@ -490,42 +448,6 @@ describe('SQLite SchemaBuilder', function () {
       tableSql[0].sql,
       'alter table `users` add column `foo` integer not null primary key autoincrement'
     );
-  });
-
-  it('adding medium integer', function () {
-    tableSql = client
-      .schemaBuilder()
-      .table('users', function (table) {
-        table.mediumint('foo');
-      })
-      .toSQL();
-
-    equal(1, tableSql.length);
-    equal(tableSql[0].sql, 'alter table `users` add column `foo` integer');
-  });
-
-  it('adding tiny integer', function () {
-    tableSql = client
-      .schemaBuilder()
-      .table('users', function (table) {
-        table.tinyint('foo');
-      })
-      .toSQL();
-
-    equal(1, tableSql.length);
-    equal(tableSql[0].sql, 'alter table `users` add column `foo` tinyint');
-  });
-
-  it('adding small integer', function () {
-    tableSql = client
-      .schemaBuilder()
-      .table('users', function (table) {
-        table.smallint('foo');
-      })
-      .toSQL();
-
-    equal(1, tableSql.length);
-    equal(tableSql[0].sql, 'alter table `users` add column `foo` integer');
   });
 
   it('adding float', function () {

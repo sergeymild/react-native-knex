@@ -11,8 +11,9 @@ const testIntegrationDialects = (
 const testConfigs = {
 
   sqlite3: {
+    debug: true,
     connection: {
-      filename: __dirname + '/test.sqlite3',
+      filename: ":memory:"
     },
   },
 };

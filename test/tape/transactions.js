@@ -565,24 +565,6 @@ module.exports = function (knex) {
     }
   });
 
-  if (knex.client.driverName === 'pg') {
-    // TODO: fix to work without old tables from mocha tests
-    tape(
-      'allows postgres ? operator in knex.raw() if no bindings given #519 and #888',
-      async function (t) {
-        t.plan(1);
-        try {
-          const result = await knex
-            .from('test_table_two')
-            .whereRaw("(json_data->'me')::jsonb \\?& array['keyOne', 'keyTwo']")
-            .where('id', '>', 1);
-          t.equal(result.length, 0, 'Table should have been empty');
-        } finally {
-          t.end();
-        }
-      }
-    );
-  }
 
   test('transaction savepoint do not rollback when instructed', async function (t) {
     let trx1QueryCount = 0;

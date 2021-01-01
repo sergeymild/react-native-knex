@@ -15,14 +15,6 @@ module.exports = function (knex) {
   let fkid = 1;
 
   describe('Transactions', function () {
-    it('can run with asCallback', function (ok) {
-      knex
-        .transaction(function (t) {
-          t.commit();
-        })
-        .asCallback(ok);
-    });
-
     it('should throw when undefined transaction is sent to transacting', function () {
       return knex
         .transaction(function (t) {

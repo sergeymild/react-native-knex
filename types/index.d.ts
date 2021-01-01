@@ -1509,11 +1509,11 @@ export declare namespace Knex {
   interface SchemaBuilder extends ChainableInterface<void> {
     createTable(
       tableName: string,
-      callback: (tableBuilder: CreateTableBuilder) => any
+      callback?: (tableBuilder: CreateTableBuilder) => any
     ): SchemaBuilder;
     createTableIfNotExists(
       tableName: string,
-      callback: (tableBuilder: CreateTableBuilder) => any
+      callback?: (tableBuilder: CreateTableBuilder) => any
     ): SchemaBuilder;
     createSchema(schemaName: string): SchemaBuilder;
     createSchemaIfNotExists(schemaName: string): SchemaBuilder;
@@ -1540,12 +1540,10 @@ export declare namespace Knex {
 
   interface TableBuilder {
     increments(columnName?: string): ColumnBuilder;
-    bigIncrements(columnName?: string): ColumnBuilder;
     dropColumn(columnName: string): TableBuilder;
     dropColumns(...columnNames: string[]): TableBuilder;
     renameColumn(from: string, to: string): ColumnBuilder;
     integer(columnName: string, length?: number): ColumnBuilder;
-    bigInteger(columnName: string): ColumnBuilder;
     text(columnName: string, textType?: string): ColumnBuilder;
     string(columnName: string, length?: number): ColumnBuilder;
     float(
@@ -1586,7 +1584,6 @@ export declare namespace Knex {
       options?: EnumOptions
     ): ColumnBuilder;
     json(columnName: string): ColumnBuilder;
-    jsonb(columnName: string): ColumnBuilder;
     uuid(columnName: string): ColumnBuilder;
     comment(val: string): TableBuilder;
     specificType(columnName: string, type: string): ColumnBuilder;

@@ -128,246 +128,22 @@ module.exports = (knex) => {
       });
     });
 
-    describe('createTable', () => {
-      it('Callback function must be supplied', () => {
-        expect(() => {
-          knex.schema.createTable('callback_must_be_supplied').toString();
-        }).to.throw(TypeError);
-        expect(() => {
-          knex.schema
-            .createTable('callback_must_be_supplied', () => {})
-            .toString();
-        }).to.not.throw(TypeError);
-      });
-
-      it('is possible to chain .catch', () =>
-        knex.schema
-          .createTable('catch_test', (t) => {
-            t.increments();
-          })
-          .catch((e) => {
-            throw e;
-          }));
-
-      it('accepts the table name, and a "container" function', () =>
-        knex.schema
-          .createTable('test_table_one', (table) => {
-            table.comment('A table comment.');
-            table.bigIncrements('id');
-            table.string('first_name').index();
-            table.string('last_name');
-            table.string('email').unique().nullable();
-            table.integer('logins').defaultTo(1).index().comment();
-            table.float('balance').defaultTo(0);
-            table.text('about').comment('A comment.');
-            table.timestamps();
-          })
-          .testSql((tester) => {
-            tester('sqlite3', [
-              "create table `test_table_one` (`id` integer not null primary key autoincrement, `first_name` varchar(255), `last_name` varchar(255), `email` varchar(255) null, `logins` integer default '1', `balance` float default '0', `about` text, `created_at` datetime, `updated_at` datetime)",
-              'create index `test_table_one_first_name_index` on `test_table_one` (`first_name`)',
-              'create unique index `test_table_one_email_unique` on `test_table_one` (`email`)',
-              'create index `test_table_one_logins_index` on `test_table_one` (`logins`)',
-            ]);
-          }));
-
-      it('handles numeric length correctly', () =>
-        knex.schema
-          .createTable('test_table_numerics', (table) => {
-            table.integer('integer_column', 5);
-            table.tinyint('tinyint_column', 5);
-            table.smallint('smallint_column', 5);
-            table.mediumint('mediumint_column', 5);
-            table.bigint('bigint_column', 5);
-          })
-          .testSql((tester) => {
-            tester('sqlite3', [
-              'create table `test_table_numerics` (`integer_column` integer, `tinyint_column` tinyint, `smallint_column` integer, `mediumint_column` integer, `bigint_column` bigint)',
-            ]);
-          })
-          .then(() => knex.schema.dropTable('test_table_numerics')));
-
-      it('supports the enum and uuid columns', () => {
-
-        return knex.schema
-          .createTable('datatype_test', (table) => {
-            table.enum('enum_value', ['a', 'b', 'c']);
-            table.uuid('uuid').notNull();
-          })
-          .testSql((tester) => {
-            tester('sqlite3', [
-              "create table `datatype_test` (`enum_value` text check (`enum_value` in ('a', 'b', 'c')), `uuid` char(36) not null)",
-            ]);
-          });
-      });
-
-      it('allows for setting foreign keys on schema creation', () =>
-        knex.schema
-          .createTable('test_foreign_table_two', (table) => {
-            table.increments();
-            table
-              .integer('fkey_two')
-              .unsigned()
-              .references('id')
-              .inTable('test_table_two');
-            table
-              .integer('fkey_three')
-              .unsigned()
-              .references('id')
-              .inTable('test_table_two')
-              .withKeyName('fk_fkey_three');
-            table.integer('fkey_four').unsigned();
-            table
-              .foreign('fkey_four', 'fk_fkey_four')
-              .references('test_table_two.id');
-          })
-          .testSql((tester) => {
-            tester('sqlite3', [
-              'create table `test_foreign_table_two` (`id` integer not null primary key autoincrement, `fkey_two` integer, `fkey_three` integer, `fkey_four` integer, ' +
-                'foreign key(`fkey_two`) references `test_table_two`(`id`), ' +
-                'constraint `fk_fkey_three` foreign key(`fkey_three`) references `test_table_two`(`id`), ' +
-                'constraint `fk_fkey_four` foreign key(`fkey_four`) references `test_table_two`(`id`))',
-            ]);
-          }));
-
-      it('rejects setting foreign key where tableName is not typeof === string', () => {
-        const builder = knex.schema.createTable(
-          'invalid_inTable_param_test',
-          (table) => {
-            const createInvalidUndefinedInTableSchema = () => {
-              table.increments('id').references('id').inTable();
-            };
-            const createInvalidObjectInTableSchema = () => {
-              table
-                .integer('another_id')
-                .references('id')
-                .inTable({ tableName: 'this_should_fail' });
-            };
-            expect(createInvalidUndefinedInTableSchema).to.throw(TypeError);
-            expect(createInvalidObjectInTableSchema).to.throw(TypeError);
-
-            table
-              .integer('yet_another_id')
-              .references('id')
-              .inTable({ tableName: 'this_should_fail_too' });
-          }
-        );
-
-        expect(() => builder.toSQL()).to.throw(TypeError);
-      });
-
-      it('allows for composite keys', () =>
-        knex.schema
-          .createTable('composite_key_test', (table) => {
-            table.integer('column_a');
-            table.integer('column_b');
-            table.text('details');
-            table.integer('status');
-            table.unique(['column_a', 'column_b']);
-          })
-          .testSql((tester) => {
-            tester('sqlite3', [
-              'create table `composite_key_test` (`column_a` integer, `column_b` integer, `details` text, `status` tinyint)',
-              'create unique index `composite_key_test_column_a_column_b_unique` on `composite_key_test` (`column_a`, `column_b`)',
-            ]);
-          })
-          .then(() =>
-            knex.table('composite_key_test').insert([
-              {
-                column_a: 1,
-                column_b: 1,
-                details: 'One, One, One',
-                status: 1,
-              },
-              {
-                column_a: 1,
-                column_b: 2,
-                details: 'One, Two, Zero',
-                status: 0,
-              },
-              {
-                column_a: 1,
-                column_b: 3,
-                details: 'One, Three, Zero',
-                status: 0,
-              },
-            ])
-          ));
-
-      it('is possible to set the table collation with table.charset and table.collate', () =>
-        knex.schema
-          .createTable('charset_collate_test', (table) => {
-            table.increments();
-            table.integer('account_id');
-            table.text('details');
-            table.tinyint('status');
-          })
-          .testSql((tester) => {
-            tester('sqlite3', [
-              'create table `charset_collate_test` (`id` integer not null primary key autoincrement, `account_id` integer, `details` text, `status` tinyint)',
-            ]);
-          }));
-
-      it('sets booleans & defaults correctly', () =>
-        knex.schema
-          .createTable('bool_test', (table) => {
-            table.bool('one');
-            table.bool('two').defaultTo(false);
-            table.bool('three').defaultTo(true);
-            table.bool('four').defaultTo('true');
-            table.bool('five').defaultTo('false');
-          })
-          .testSql((tester) => {
-            tester('sqlite3', [
-              "create table `bool_test` (`one` boolean, `two` boolean default '0', `three` boolean default '1', `four` boolean default '1', `five` boolean default '0')",
-            ]);
-          })
-          .then(() => knex.insert({ one: false }).into('bool_test')));
-
-      it('accepts table names starting with numeric values', () =>
-        knex.schema
-          .createTable('10_test_table', (table) => {
-            table.bigIncrements('id');
-            table.string('first_name').index();
-            table.string('last_name');
-            table.string('email').unique().nullable();
-            table.integer('logins').defaultTo(1).index().comment();
-          })
-          .testSql((tester) => {
-            tester('sqlite3', [
-              "create table `10_test_table` (`id` integer not null primary key autoincrement, `first_name` varchar(255), `last_name` varchar(255), `email` varchar(255) null, `logins` integer default '1')",
-              'create index `10_test_table_first_name_index` on `10_test_table` (`first_name`)',
-              'create unique index `10_test_table_email_unique` on `10_test_table` (`email`)',
-              'create index `10_test_table_logins_index` on `10_test_table` (`logins`)',
-            ]);
-          }));
-    });
-
     describe('table', () => {
-      it('Callback function must be supplied', () => {
-        expect(() => {
-          knex.schema.createTable('callback_must_be_supplied').toString();
-        }).to.throw(TypeError);
-        expect(() => {
-          knex.schema
-            .createTable('callback_must_be_supplied', () => {})
-            .toString();
-        }).to.not.throw(TypeError);
+      it('allows adding a field', async () => {
+        knex.schema.createTable("test_table_two")
+          .then(() => knex.schema.table('test_table_two', (t) => {
+            t.json('json_data', true);
+          }))
       });
-
-      it('allows adding a field', () =>
-        knex.schema.table('test_table_two', (t) => {
-          t.json('json_data', true);
-        }));
 
       it('allows adding multiple columns at once', function () {
         return knex.schema
-          .table('test_table_two', (t) => {
+          .createTable('test_table_two', (t) => {
             t.string('one');
             t.string('two');
             t.string('three');
           })
-          .then(() =>
+          .then((args) =>
             knex.schema.table('test_table_two', (t) => {
               t.dropColumn('one');
               t.dropColumn('two');
@@ -380,10 +156,6 @@ module.exports = (knex) => {
         knex.schema
           .createTable('test_table_numerics2', (table) => {
             table.integer('integer_column', 5);
-            table.tinyint('tinyint_column', 5);
-            table.smallint('smallint_column', 5);
-            table.mediumint('mediumint_column', 5);
-            table.bigint('bigint_column', 5);
           })
           .then(() => knex.schema.dropTable('test_table_numerics2')));
 
@@ -432,10 +204,11 @@ module.exports = (knex) => {
     });
 
     describe('hasTable', () => {
-      it('checks whether a table exists', () =>
-        knex.schema.hasTable('test_table_two').then((resp) => {
-          expect(resp).to.equal(true);
-        }));
+      it('checks whether a table exists', async () => {
+        knex.schema.createTable('test_table_two')
+          .then(() => knex.schema.hasTable('test_table_two')
+            .then((resp) => expect(resp).to.equal(true)))
+      })
 
       it('should be false if a table does not exists', () =>
         knex.schema.hasTable('this_table_is_fake').then((resp) => {
@@ -449,35 +222,32 @@ module.exports = (knex) => {
     });
 
     describe('renameTable', () => {
-      it('renames the table from one to another', () =>
-        knex.schema.renameTable('test_table_one', 'accounts'));
+      it('renames the table from one to another', () => {
+        knex.schema.createTable('test_table_two').then(() => knex.schema.renameTable('test_table_one', 'accounts'))
+      })
     });
 
     describe('dropTable', () => {
-      it('should drop a table', () =>
-        knex.schema.dropTable('test_table_three').then(() => {
+      it('should drop a table', () => {
+        knex.schema.createTable('test_table_two').then(() => knex.schema.dropTable('test_table_three').then(() => {
           // Drop this here so we don't have foreign key constraints...
           return knex.schema.dropTable('test_foreign_table_two');
-        }));
+        }))
+      });
     });
 
     describe('hasColumn', () => {
       describe('without processors', () => {
-        it('checks whether a column exists, resolving with a boolean', () =>
-          knex.schema.hasColumn('accounts', 'first_name').then((exists) => {
+        it('checks whether a column exists, resolving with a boolean', () => {
+          knex.schema.createTable('accounts', (t) => t.string('first_name'))
+            .then(() => knex.schema.hasColumn('accounts', 'first_name').then((exists) => {
             expect(exists).to.equal(true);
-          }));
+          }))
+        });
 
         describe('sqlite only', () => {
-          if (
-            !knex ||
-            !knex.client ||
-            !/sqlite3/i.test(knex.client.driverName)
-          ) {
-            return Promise.resolve();
-          }
-
           it('checks whether a column exists without being case sensitive, resolving with a boolean', async () => {
+            await knex.schema.createTable('accounts')
             const exists = await knex.schema.hasColumn(
               'accounts',
               'FIRST_NAME'
@@ -829,28 +599,21 @@ module.exports = (knex) => {
             })
           )
           .then(() => {
-            if (/sqlite/i.test(knex.client.dialect)) {
-              //For SQLite inspect metadata to make sure the constraint exists
-              return tr
-                .select('type', 'name', 'tbl_name', 'sql')
-                .from('sqlite_master')
-                .where({
-                  type: 'table',
-                  name: tableName,
-                })
-                .then((value) => {
-                  expect(value).to.deep.have.same.members(
-                    expectedRes,
-                    'Constraint "' + constraintName + '" not correctly created.'
-                  );
-                  return Promise.resolve();
-                });
-            } else {
-              return tr.schema.table(tableName, (table) => {
-                // For everything else just drop the constraint by name to check existence
-                table.dropPrimary(constraintName);
+            //For SQLite inspect metadata to make sure the constraint exists
+            return tr
+              .select('type', 'name', 'tbl_name', 'sql')
+              .from('sqlite_master')
+              .where({
+                type: 'table',
+                name: tableName,
+              })
+              .then((value) => {
+                expect(value).to.deep.have.same.members(
+                  expectedRes,
+                  'Constraint "' + constraintName + '" not correctly created.'
+                );
+                return Promise.resolve();
               });
-            }
           })
           .then(() => tr.schema.dropTableIfExists(tableName))
           .then(() =>
@@ -861,28 +624,21 @@ module.exports = (knex) => {
             })
           )
           .then(() => {
-            if (/sqlite/i.test(knex.client.dialect)) {
-              //For SQLite inspect metadata to make sure the constraint exists
-              return tr
-                .select('type', 'name', 'tbl_name', 'sql')
-                .from('sqlite_master')
-                .where({
-                  type: 'table',
-                  name: tableName,
-                })
-                .then((value) => {
-                  expect(value).to.deep.have.same.members(
-                    expectedRes,
-                    'Constraint "' + constraintName + '" not correctly created.'
-                  );
-                  return Promise.resolve();
-                });
-            } else {
-              return tr.schema.table(tableName, (table) => {
-                // For everything else just drop the constraint by name to check existence
-                table.dropPrimary(constraintName);
+            //For SQLite inspect metadata to make sure the constraint exists
+            return tr
+              .select('type', 'name', 'tbl_name', 'sql')
+              .from('sqlite_master')
+              .where({
+                type: 'table',
+                name: tableName,
+              })
+              .then((value) => {
+                expect(value).to.deep.have.same.members(
+                  expectedRes,
+                  'Constraint "' + constraintName + '" not correctly created.'
+                );
+                return Promise.resolve();
               });
-            }
           })
           .then(() => tr.schema.dropTableIfExists(tableName))
           .then(() =>
@@ -893,41 +649,34 @@ module.exports = (knex) => {
             })
           )
           .then(() => {
-            if (/sqlite/i.test(knex.client.dialect)) {
-              //For SQLite inspect metadata to make sure the constraint exists
-              const expectedRes = [
-                {
-                  type: 'table',
-                  name: tableName,
-                  tbl_name: tableName,
-                  sql:
-                    'CREATE TABLE `' +
-                    tableName +
-                    '` (`test` varchar(255), `test2` varchar(255), constraint `' +
-                    constraintName +
-                    '` primary key (`test`, `test2`))',
-                },
-              ];
-              return tr
-                .select('type', 'name', 'tbl_name', 'sql')
-                .from('sqlite_master')
-                .where({
-                  type: 'table',
-                  name: tableName,
-                })
-                .then((value) => {
-                  expect(value).to.deep.have.same.members(
-                    expectedRes,
-                    'Constraint "' + constraintName + '" not correctly created.'
-                  );
-                  return Promise.resolve();
-                });
-            } else {
-              return tr.schema.table(tableName, (table) => {
-                // For everything else just drop the constraint by name to check existence
-                table.dropPrimary(constraintName);
+            //For SQLite inspect metadata to make sure the constraint exists
+            const expectedRes = [
+              {
+                type: 'table',
+                name: tableName,
+                tbl_name: tableName,
+                sql:
+                  'CREATE TABLE `' +
+                  tableName +
+                  '` (`test` varchar(255), `test2` varchar(255), constraint `' +
+                  constraintName +
+                  '` primary key (`test`, `test2`))',
+              },
+            ];
+            return tr
+              .select('type', 'name', 'tbl_name', 'sql')
+              .from('sqlite_master')
+              .where({
+                type: 'table',
+                name: tableName,
+              })
+              .then((value) => {
+                expect(value).to.deep.have.same.members(
+                  expectedRes,
+                  'Constraint "' + constraintName + '" not correctly created.'
+                );
+                return Promise.resolve();
               });
-            }
           })
           .then(() => tr.schema.dropTableIfExists(tableName))
       );
