@@ -1,7 +1,7 @@
 'use strict';
 
 const tape = require('tape');
-const omit = require('lodash/omit');
+const omit = require('lodash.omit');
 const QueryBuilder = require('../../lib/query/builder');
 const Client = require('../../lib/client');
 
