@@ -433,7 +433,7 @@ export declare namespace Knex {
 
   interface OnConflictQueryBuilder<TRecord, TResult> {
     ignore(): QueryBuilder<TRecord, TResult>;
-    merge(data?: DbRecord<TRecord>): QueryBuilder<TRecord, TResult>;
+    merge(data: DbRecord<TRecord>): QueryBuilder<TRecord, TResult>;
   }
 
   //
@@ -1661,7 +1661,6 @@ export declare namespace Knex {
     version?: string;
     connection?: Sqlite3ConnectionConfig;
     postProcessResponse?: (result: any) => any;
-    useNullAsDefault?: boolean;
     log?: Logger;
   }
 

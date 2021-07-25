@@ -279,12 +279,6 @@ describe('String utility functions', () => {
         ).to.equal('SELECT 1 FROM test_table;');
       });
 
-      it('should convert and escape a buffer to string', () => {
-        expect(escapeFunc(Buffer.from('Foo Bar'))).to.equal(
-          "X'466f6f20426172'"
-        );
-      });
-
       it('should convert empty value to `NULL` string', () => {
         expect(escapeFunc(undefined)).to.equal('NULL');
         expect(escapeFunc(null)).to.equal('NULL');
@@ -311,10 +305,6 @@ describe('String utility functions', () => {
 
       it('should work with a custom object escape function', () => {
         expect(escapeFunc({ a: [1, 2, 3, 4] })).to.equal('{"a":[1,2,3,4]}');
-      });
-
-      it('should work with a custom buffer escape function', () => {
-        expect(escapeFunc(Buffer.from('Foo Bar'))).to.equal('466f6f20426172');
       });
 
       it('should convert empty value to `NULL` string', () => {

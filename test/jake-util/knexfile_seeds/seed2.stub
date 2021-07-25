@@ -1,6 +1,0 @@
-const tableName = 'table_name';
-
-exports.seed = (knex) => {
-  // Deletes ALL existing entries
-  return knex(`tbl_${tableName}`).del();
-};

@@ -49,6 +49,9 @@ function verifySqlResult(dialect, expectedObj, sqlObj) {
       expectedObj[key](sqlObj[key]);
     } else {
       try {
+        console.log(sqlObj)
+        console.log(expectedObj)
+        console.log("===============")
         expect(sqlObj[key]).to.deep.equal(expectedObj[key]);
       } catch (e) {
         e.stack = dialect + ': ' + e.stack;
@@ -92,6 +95,7 @@ function testquery(chain, valuesToCheck, selectedClients) {
     newChain.client = selectedClients[key];
     const sqlString = newChain.toQuery();
     const checkValue = valuesToCheck[key];
+    console.log(sqlString, checkValue)
     expect(checkValue).to.equal(sqlString);
   });
 }
@@ -318,7 +322,7 @@ describe('QueryBuilder', () => {
       {
         sqlite3: {
           sql:
-            'insert into `users` (`email`, `name`) select ? as `email`, ? as `name` union all select ? as `email`, ? as `name`',
+            'insert into `users` (`email`, `name`) values (?, ?), (?, ?)',
           bindings: ['foo', 'taylor', 'bar', 'dayle'],
         },
       }
@@ -332,65 +336,9 @@ describe('QueryBuilder', () => {
         .insert([{ email: 'foo', name: 'taylor' }, { name: 'dayle' }]),
       {
         sqlite3:
-          "insert into `users` (`email`, `name`) select 'foo' as `email`, 'taylor' as `name` union all select NULL as `email`, 'dayle' as `name`",
+          "insert into `users` (`email`, `name`) values ('foo', 'taylor'), (NULL, 'dayle')",
       },
       clientsWithNullAsDefault
-    );
-  });
-
-  it('multiple inserts with partly undefined keys throw error with sqlite', () => {
-    expect(() => {
-      testquery(
-        qb()
-          .from('users')
-          .insert([{ email: 'foo', name: 'taylor' }, { name: 'dayle' }]),
-        {
-          sqlite3: '',
-        }
-      );
-    }).to.throw(TypeError);
-  });
-
-  it('multiple inserts with returning', () => {
-    // returning only supported directly by postgres and with workaround with oracle
-    // other databases implicitly return the inserted id
-    testsql(
-      qb()
-        .from('users')
-        .insert(
-          [
-            { email: 'foo', name: 'taylor' },
-            { email: 'bar', name: 'dayle' },
-          ],
-          'id'
-        ),
-      {
-        sqlite3: {
-          sql:
-            'insert into `users` (`email`, `name`) select ? as `email`, ? as `name` union all select ? as `email`, ? as `name`',
-        },
-      }
-    );
-  });
-
-  it('multiple inserts with multiple returning', () => {
-    testsql(
-      qb()
-        .from('users')
-        .insert(
-          [
-            { email: 'foo', name: 'taylor' },
-            { email: 'bar', name: 'dayle' },
-          ],
-          ['id', 'name']
-        ),
-      {
-        sqlite3: {
-          sql:
-            'insert into `users` (`email`, `name`) select ? as `email`, ? as `name` union all select ? as `email`, ? as `name`',
-          bindings: ['foo', 'taylor', 'bar', 'dayle'],
-        },
-      }
     );
   });
 
@@ -406,7 +354,7 @@ describe('QueryBuilder', () => {
     testsql(qb().insert(data).into('table'), {
       sqlite3: {
         sql:
-          'insert into `table` (`a`, `b`, `c`) select ? as `a`, ? as `b`, ? as `c` union all select ? as `a`, ? as `b`, ? as `c` union all select ? as `a`, ? as `b`, ? as `c`',
+          'insert into `table` (`a`, `b`, `c`) values (?, ?, ?), (?, ?, ?), (?, ?, ?)',
         bindings: [
           1,
           undefined,
@@ -459,7 +407,7 @@ describe('QueryBuilder', () => {
       {
         sqlite3: {
           sql:
-            'insert into `users` (`email`) select ? as `email` union all select ? as `email` where true on conflict (`email`) do nothing',
+            'insert into `users` (`email`) values (?), (?) on conflict (`email`) do nothing',
           bindings: ['foo', 'bar'],
         },
       }
@@ -496,46 +444,8 @@ describe('QueryBuilder', () => {
       {
         sqlite3: {
           sql:
-            'insert into `users` (`email`, `name`) select ? as `email`, ? as `name` union all select ? as `email`, ? as `name` where true on conflict (`email`) do update set `name` = ?',
+            'insert into `users` (`email`, `name`) values (?, ?), (?, ?) on conflict (`email`) do update set `name` = ?',
           bindings: ['foo', 'taylor', 'bar', 'dayle', 'overidden'],
-        },
-      }
-    );
-  });
-
-  it('insert merge multiple with implicit updates', () => {
-    testsql(
-      qb()
-        .from('users')
-        .insert([
-          { email: 'foo', name: 'taylor' },
-          { email: 'bar', name: 'dayle' },
-        ])
-        .onConflict('email')
-        .merge(),
-      {
-        sqlite3: {
-          sql:
-            'insert into `users` (`email`, `name`) select ? as `email`, ? as `name` union all select ? as `email`, ? as `name` where true on conflict (`email`) do update set `email` = excluded.`email`, `name` = excluded.`name`',
-          bindings: ['foo', 'taylor', 'bar', 'dayle'],
-        },
-      }
-    );
-  });
-
-  it('insert merge with where clause', () => {
-    testsql(
-      qb()
-        .from('users')
-        .insert({ email: 'foo', name: 'taylor' })
-        .onConflict('email')
-        .merge()
-        .where('email', 'foo2'),
-      {
-        sqlite3: {
-          sql:
-            'insert into `users` (`email`, `name`) values (?, ?) on conflict (`email`) do update set `email` = excluded.`email`, `name` = excluded.`name` where `email` = ?',
-          bindings: ['foo', 'taylor', 'foo2'],
         },
       }
     );
@@ -578,15 +488,6 @@ describe('QueryBuilder', () => {
   });
 
   it('#1268 - valueForUndefined should be in toSQL(QueryCompiler)', () => {
-
-    expect(() => {
-      clients.sqlite3
-        .queryBuilder()
-        .insert([{ id: void 0 }])
-        .into('users')
-        .toString();
-    }).to.throw(TypeError);
-
     expect(() => {
       clientsWithNullAsDefault.sqlite3
         .queryBuilder()

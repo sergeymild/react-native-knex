@@ -749,35 +749,6 @@ module.exports = function (knex) {
         );
     });
 
-    it('should not allow invalid uuids in postgresql', function () {
-      return knex.table('datatype_test')
-        .insert({
-          enum_value: 'c',
-          uuid: 'c39d8fcf-68a0-4902-b192-1ebb6310d9ad',
-        })
-        .then(function () {
-          return knex.table('datatype_test').insert({
-            enum_value: 'c',
-            uuid: 'test',
-          });
-        })
-        .then(
-          function () {
-            // No errors happen in sqlite3 or mysql, which don't have native support
-            // for the uuid type.
-            if (
-              knex.client.driverName === 'pg' ||
-              knex.client.driverName === 'mssql'
-            ) {
-              throw new Error(
-                'There should be an error in postgresql for uuids'
-              );
-            }
-          },
-          function () {}
-        );
-    });
-
     it('should not mutate the array passed in', function () {
       const a = {
         enum_value: 'a',

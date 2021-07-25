@@ -11,12 +11,6 @@ module.exports = function (knex) {
 
   // allowed driver name of a client
   const allowedClients = [
-    'pg',
-    'mssql',
-    'mysql',
-    'mysql2',
-    'oracledb',
-    'pg-redshift',
     'sqlite3',
   ];
 
