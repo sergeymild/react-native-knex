@@ -11,7 +11,7 @@ const { TEST_TIMESTAMP } = require('../../util/constants');
 module.exports = function (knex) {
   describe('Selects', function () {
     it('runs with no conditions', function () {
-      return knex('accounts').select();
+      return knex.table('accounts').select();
     });
 
     it('returns an array of a single column with `pluck`', function () {
@@ -77,7 +77,7 @@ module.exports = function (knex) {
 
     it('allows you to stream', function () {
       let count = 0;
-      return knex('accounts')
+      return knex.table('accounts')
         .stream(function (rowStream) {
           rowStream.on('data', function () {
             count++;
@@ -90,7 +90,7 @@ module.exports = function (knex) {
 
     it('returns a stream if not passed a function', function (done) {
       let count = 0;
-      const stream = knex('accounts').stream();
+      const stream = knex.table('accounts').stream();
       stream.on('data', function () {
         count++;
         if (count === 6) done();
@@ -113,7 +113,7 @@ module.exports = function (knex) {
           reject(new Error('Timeout'));
         }, 5000);
 
-        const stream = knex('accounts').stream();
+        const stream = knex.table('accounts').stream();
         stream.on('error', function (actual) {
           clearTimeout(timeout);
 
@@ -130,7 +130,7 @@ module.exports = function (knex) {
     });
 
     it('emits error on the stream, if not passed a function, and query fails', function (done) {
-      const stream = knex('accounts').select('invalid_field').stream();
+      const stream = knex.table('accounts').select('invalid_field').stream();
       stream.on('error', function (err) {
         assert(err instanceof Error);
         done();
@@ -138,7 +138,7 @@ module.exports = function (knex) {
     });
 
     it('emits error if not passed a function and the query has wrong bindings', function (done) {
-      const stream = knex('accounts')
+      const stream = knex.table('accounts')
         .whereRaw('id = ? and first_name = ?', ['2'])
         .stream();
       stream.on('error', function (err) {
@@ -149,7 +149,7 @@ module.exports = function (knex) {
 
     it('properly escapes postgres queries on streaming', function () {
       let count = 0;
-      return knex('accounts')
+      return knex.table('accounts')
         .where('id', 1)
         .stream(function (rowStream) {
           rowStream.on('data', function () {
@@ -174,7 +174,7 @@ module.exports = function (knex) {
         ok();
       });
 
-      knex('accounts')
+      knex.table('accounts')
         .select()
         .asCallback(function () {
           this.undefinedVar.test;
@@ -183,7 +183,7 @@ module.exports = function (knex) {
 
     describe('simple "where" cases', function () {
       it('allows key, value', function () {
-        return knex('accounts')
+        return knex.table('accounts')
           .where('id', 1)
           .select('first_name', 'last_name')
           .testSql(function (tester) {
@@ -202,7 +202,7 @@ module.exports = function (knex) {
       });
 
       it('allows key, operator, value', function () {
-        return knex('accounts')
+        return knex.table('accounts')
           .where('id', 1)
           .select('first_name', 'last_name')
           .testSql(function (tester) {
@@ -221,7 +221,7 @@ module.exports = function (knex) {
       });
 
       it('allows selecting columns with an array', function () {
-        return knex('accounts')
+        return knex.table('accounts')
           .where('id', '>', 1)
           .select(['email', 'logins'])
           .testSql(function (tester) {
@@ -234,7 +234,7 @@ module.exports = function (knex) {
       });
 
       it('allows a hash of where attrs', function () {
-        return knex('accounts')
+        return knex.table('accounts')
           .where({ id: 1 })
           .select('*')
           .testSql(function (tester) {
@@ -261,7 +261,7 @@ module.exports = function (knex) {
       });
 
       it('allows where id: undefined or id: null as a where null clause', function () {
-        return knex('accounts')
+        return knex.table('accounts')
           .where({ id: null })
           .select('first_name', 'email')
           .testSql(function (tester) {
@@ -275,7 +275,7 @@ module.exports = function (knex) {
       });
 
       it('allows where id = 0', function () {
-        return knex('accounts')
+        return knex.table('accounts')
           .where({ id: 0 })
           .select()
           .testSql(function (tester) {
@@ -300,7 +300,7 @@ module.exports = function (knex) {
           table.time('timeCol');
         })
         .then(function () {
-          return knex('DatesTest').insert([
+          return knex.table('DatesTest').insert([
             {
               dateTimeCol: null,
               timeStampCol: null,
@@ -310,7 +310,7 @@ module.exports = function (knex) {
           ]);
         })
         .then(function () {
-          return knex('DatesTest').select();
+          return knex.table('DatesTest').select();
         })
         .then(function (rows) {
           expect(rows[0].dateTimeCol).to.equal(null);
@@ -322,17 +322,17 @@ module.exports = function (knex) {
 
     it('has a "distinct" clause', function () {
       return Promise.all([
-        knex('accounts')
+        knex.table('accounts')
           .select()
           .distinct('email')
           .where('logins', 2)
           .orderBy('email'),
-        knex('accounts').distinct('email').select().orderBy('email'),
+        knex.table('accounts').distinct('email').select().orderBy('email'),
       ]);
     });
 
     it('supports "distinct on"', async function() {
-      const builder = knex('accounts')
+      const builder = knex.table('accounts')
         .select('email', 'logins')
         .distinctOn('id')
         .orderBy('id');
@@ -350,14 +350,14 @@ module.exports = function (knex) {
     });
 
     it('does "orWhere" cases', function () {
-      return knex('accounts')
+      return knex.table('accounts')
         .where('id', 1)
         .orWhere('id', '>', 2)
         .select('first_name', 'last_name');
     });
 
     it('does "andWhere" cases', function () {
-      return knex('accounts')
+      return knex.table('accounts')
         .select('first_name', 'last_name', 'about')
         .where('id', 1)
         .andWhere('email', 'test@example.com');
@@ -365,7 +365,7 @@ module.exports = function (knex) {
 
     it('takes a function to wrap nested where statements', function () {
       return Promise.all([
-        knex('accounts')
+        knex.table('accounts')
           .where(function () {
             this.where('id', 2);
             this.orWhere('id', 3);
@@ -375,11 +375,11 @@ module.exports = function (knex) {
     });
 
     it('handles "where in" cases', function () {
-      return Promise.all([knex('accounts').whereIn('id', [1, 2, 3]).select()]);
+      return Promise.all([knex.table('accounts').whereIn('id', [1, 2, 3]).select()]);
     });
 
     it('handles "or where in" cases', function () {
-      return knex('accounts')
+      return knex.table('accounts')
         .where('email', 'test@example.com')
         .orWhereIn('id', [2, 3, 4])
         .select();
@@ -387,7 +387,7 @@ module.exports = function (knex) {
 
     it('handles multi-column "where in" cases', function () {
 
-      return knex('composite_key_test')
+      return knex.table('composite_key_test')
         .whereIn(
           ['column_a', 'column_b'],
           [
@@ -422,7 +422,7 @@ module.exports = function (knex) {
     });
 
     it('handles "where exists"', function () {
-      return knex('accounts')
+      return knex.table('accounts')
         .whereExists(function () {
           this.select('id').from('test_table_two').where({ id: 1 });
         })
@@ -430,11 +430,11 @@ module.exports = function (knex) {
     });
 
     it('handles "where between"', function () {
-      return knex('accounts').whereBetween('id', [1, 100]).select();
+      return knex.table('accounts').whereBetween('id', [1, 100]).select();
     });
 
     it('handles "or where between"', function () {
-      return knex('accounts')
+      return knex.table('accounts')
         .whereBetween('id', [1, 100])
         .orWhereBetween('id', [200, 300])
         .select();
@@ -443,7 +443,7 @@ module.exports = function (knex) {
     it('does where(raw)', function () {
       if (knex.client.driverName === 'oracledb') {
         // special case for oracle
-        return knex('accounts')
+        return knex.table('accounts')
           .whereExists(function () {
             this.select(knex.raw(1))
               .from('test_table_two')
@@ -453,7 +453,7 @@ module.exports = function (knex) {
           })
           .select();
       } else {
-        return knex('accounts')
+        return knex.table('accounts')
           .whereExists(function () {
             this.select(knex.raw(1))
               .from('test_table_two')
@@ -464,7 +464,7 @@ module.exports = function (knex) {
     });
 
     it('does sub-selects', function () {
-      return knex('accounts')
+      return knex.table('accounts')
         .whereIn('id', function () {
           this.select('account_id').from('test_table_two').where('status', 1);
         })
@@ -472,16 +472,16 @@ module.exports = function (knex) {
     });
 
     it('supports the <> operator', function () {
-      return knex('accounts').where('id', '<>', 2).select('email', 'logins');
+      return knex.table('accounts').where('id', '<>', 2).select('email', 'logins');
     });
 
     it('Allows for knex.Raw passed to the `where` clause', function () {
       if (knex.client.driverName === 'oracledb') {
-        return knex('accounts')
+        return knex.table('accounts')
           .where(knex.raw('"id" = 2'))
           .select('email', 'logins');
       } else {
-        return knex('accounts')
+        return knex.table('accounts')
           .where(knex.raw('id = 2'))
           .select('email', 'logins');
       }
@@ -507,7 +507,7 @@ module.exports = function (knex) {
     });
 
     it('knex.ref() as column in .select()', function () {
-      return knex('accounts')
+      return knex.table('accounts')
         .select([knex.ref('accounts.id').as('userid')])
         .where(knex.ref('accounts.id'), '1')
         .first()
@@ -519,7 +519,7 @@ module.exports = function (knex) {
     });
 
     it.skip('select forUpdate().first() bug in oracle (--------- TODO: FIX)', function () {
-      return knex('accounts').where('id', 1).forUpdate().first();
+      return knex.table('accounts').where('id', 1).forUpdate().first();
     });
   });
 };

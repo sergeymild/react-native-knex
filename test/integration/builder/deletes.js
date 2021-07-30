@@ -13,7 +13,7 @@ module.exports = function (knex) {
         });
     });
 
-    it('should allow returning for deletes in postgresql and mssql', function () {
+    it('should allow returning for deletes in sqlite3', async function () {
       return knex.table('accounts')
         .where('id', 2)
         .del('*')

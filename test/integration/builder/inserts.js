@@ -10,7 +10,7 @@ const { TEST_TIMESTAMP } = require('../../util/constants');
 module.exports = function (knex) {
   describe('Inserts', function () {
     it('should handle simple inserts', function () {
-      return knex.table('accounts')
+      const q = knex.table('accounts')
         .insert(
           {
             first_name: 'Test',
@@ -25,48 +25,6 @@ module.exports = function (knex) {
         )
         .testSql(function (tester) {
           tester(
-            'mysql',
-            'insert into `accounts` (`about`, `created_at`, `email`, `first_name`, `last_name`, `logins`, `updated_at`) values (?, ?, ?, ?, ?, ?, ?)',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test@example.com',
-              'Test',
-              'User',
-              1,
-              TEST_TIMESTAMP,
-            ],
-            [1]
-          );
-          tester(
-            'pg',
-            'insert into "accounts" ("about", "created_at", "email", "first_name", "last_name", "logins", "updated_at") values (?, ?, ?, ?, ?, ?, ?) returning "id"',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test@example.com',
-              'Test',
-              'User',
-              1,
-              TEST_TIMESTAMP,
-            ],
-            ['1']
-          );
-          tester(
-            'pg-redshift',
-            'insert into "accounts" ("about", "created_at", "email", "first_name", "last_name", "logins", "updated_at") values (?, ?, ?, ?, ?, ?, ?)',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test@example.com',
-              'Test',
-              'User',
-              1,
-              TEST_TIMESTAMP,
-            ],
-            1
-          );
-          tester(
             'sqlite3',
             'insert into `accounts` (`about`, `created_at`, `email`, `first_name`, `last_name`, `logins`, `updated_at`) values (?, ?, ?, ?, ?, ?, ?)',
             [
@@ -80,38 +38,8 @@ module.exports = function (knex) {
             ],
             [1]
           );
-          tester(
-            'oracledb',
-            'insert into "accounts" ("about", "created_at", "email", "first_name", "last_name", "logins", "updated_at") values (?, ?, ?, ?, ?, ?, ?) returning "id" into ?',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test@example.com',
-              'Test',
-              'User',
-              1,
-              TEST_TIMESTAMP,
-              function (v) {
-                return v.toString() === '[object ReturningHelper:id]';
-              },
-            ],
-            ['1']
-          );
-          tester(
-            'mssql',
-            'insert into [accounts] ([about], [created_at], [email], [first_name], [last_name], [logins], [updated_at]) output inserted.[id] values (?, ?, ?, ?, ?, ?, ?)',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test@example.com',
-              'Test',
-              'User',
-              1,
-              TEST_TIMESTAMP,
-            ],
-            ['1']
-          );
         });
+      return q
     });
 
     it('should handle multi inserts', function () {
@@ -141,69 +69,6 @@ module.exports = function (knex) {
         )
         .testSql(function (tester) {
           tester(
-            'mysql',
-            'insert into `accounts` (`about`, `created_at`, `email`, `first_name`, `last_name`, `logins`, `updated_at`) values (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?)',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test2@example.com',
-              'Test',
-              'User',
-              1,
-              TEST_TIMESTAMP,
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test3@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-            ],
-            [2]
-          );
-          tester(
-            'pg',
-            'insert into "accounts" ("about", "created_at", "email", "first_name", "last_name", "logins", "updated_at") values (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?) returning "id"',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test2@example.com',
-              'Test',
-              'User',
-              1,
-              TEST_TIMESTAMP,
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test3@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-            ],
-            ['2', '3']
-          );
-          tester(
-            'pg-redshift',
-            'insert into "accounts" ("about", "created_at", "email", "first_name", "last_name", "logins", "updated_at") values (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?)',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test2@example.com',
-              'Test',
-              'User',
-              1,
-              TEST_TIMESTAMP,
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test3@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-            ],
-            2
-          );
-          tester(
             'sqlite3',
             'insert into `accounts` (`about`, `created_at`, `email`, `first_name`, `last_name`, `logins`, `updated_at`) select ? as `about`, ? as `created_at`, ? as `email`, ? as `first_name`, ? as `last_name`, ? as `logins`, ? as `updated_at` union all select ? as `about`, ? as `created_at`, ? as `email`, ? as `first_name`, ? as `last_name`, ? as `logins`, ? as `updated_at`',
             [
@@ -224,113 +89,9 @@ module.exports = function (knex) {
             ],
             [3]
           );
-          tester(
-            'oracledb',
-            'begin execute immediate \'insert into "accounts" ("about", "created_at", "email", "first_name", "last_name", "logins", "updated_at") values (:1, :2, :3, :4, :5, :6, :7) returning "id" into :8\' using ?, ?, ?, ?, ?, ?, ?, out ?; execute immediate \'insert into "accounts" ("about", "created_at", "email", "first_name", "last_name", "logins", "updated_at") values (:1, :2, :3, :4, :5, :6, :7) returning "id" into :8\' using ?, ?, ?, ?, ?, ?, ?, out ?;end;',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test2@example.com',
-              'Test',
-              'User',
-              1,
-              TEST_TIMESTAMP,
-              function (v) {
-                return v.toString() === '[object ReturningHelper:id]';
-              },
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test3@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-              function (v) {
-                return v.toString() === '[object ReturningHelper:id]';
-              },
-            ],
-            ['2', '3']
-          );
-          tester(
-            'mssql',
-            'insert into [accounts] ([about], [created_at], [email], [first_name], [last_name], [logins], [updated_at]) output inserted.[id] values (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?)',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test2@example.com',
-              'Test',
-              'User',
-              1,
-              TEST_TIMESTAMP,
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test3@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-            ],
-            ['2', '3']
-          );
         });
     });
 
-    it('should allow for using the `asCallback` interface', function (ok) {
-      knex.table('test_table_two')
-        .insert(
-          [
-            {
-              account_id: 1,
-              details:
-                'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-              status: 0,
-            },
-            {
-              account_id: 2,
-              details:
-                'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-              status: 1,
-            },
-            {
-              account_id: 3,
-              details: '',
-              status: 1,
-            },
-          ],
-          'id'
-        )
-        .testSql(function (tester) {
-          tester(
-            'oracledb',
-            'begin execute immediate \'insert into "test_table_two" ("account_id", "details", "status") values (:1, :2, :3) returning "id" into :4\' using ?, ?, ?, out ?; execute immediate \'insert into "test_table_two" ("account_id", "details", "status") values (:1, :2, :3) returning "id" into :4\' using ?, ?, ?, out ?; execute immediate \'insert into "test_table_two" ("account_id", "details", "status") values (:1, :2, :3) returning "id" into :4\' using ?, ?, ?, out ?;end;',
-            [
-              1,
-              'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-              0,
-              function (v) {
-                return v.toString() === '[object ReturningHelper:id]';
-              },
-              2,
-              'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-              1,
-              function (v) {
-                return v.toString() === '[object ReturningHelper:id]';
-              },
-              3,
-              '',
-              1,
-              function (v) {
-                return v.toString() === '[object ReturningHelper:id]';
-              },
-            ],
-            ['1', '2', '3']
-          );
-        })
-        .asCallback(function (err) {
-          if (err) return ok(err);
-          ok();
-        });
-    });
 
     it('should take hashes passed into insert and keep them in the correct order', function () {
       return knex.table('accounts')
@@ -359,69 +120,6 @@ module.exports = function (knex) {
         )
         .testSql(function (tester) {
           tester(
-            'mysql',
-            'insert into `accounts` (`about`, `created_at`, `email`, `first_name`, `last_name`, `logins`, `updated_at`) values (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?)',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test4@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test5@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-            ],
-            [4]
-          );
-          tester(
-            'pg',
-            'insert into "accounts" ("about", "created_at", "email", "first_name", "last_name", "logins", "updated_at") values (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?) returning "id"',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test4@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test5@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-            ],
-            ['4', '5']
-          );
-          tester(
-            'pg-redshift',
-            'insert into "accounts" ("about", "created_at", "email", "first_name", "last_name", "logins", "updated_at") values (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?)',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test4@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test5@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-            ],
-            2
-          );
-          tester(
             'sqlite3',
             'insert into `accounts` (`about`, `created_at`, `email`, `first_name`, `last_name`, `logins`, `updated_at`) select ? as `about`, ? as `created_at`, ? as `email`, ? as `first_name`, ? as `last_name`, ? as `logins`, ? as `updated_at` union all select ? as `about`, ? as `created_at`, ? as `email`, ? as `first_name`, ? as `last_name`, ? as `logins`, ? as `updated_at`',
             [
@@ -442,61 +140,10 @@ module.exports = function (knex) {
             ],
             [5]
           );
-          tester(
-            'oracledb',
-            'begin execute immediate \'insert into "accounts" ("about", "created_at", "email", "first_name", "last_name", "logins", "updated_at") values (:1, :2, :3, :4, :5, :6, :7) returning "id" into :8\' using ?, ?, ?, ?, ?, ?, ?, out ?; execute immediate \'insert into "accounts" ("about", "created_at", "email", "first_name", "last_name", "logins", "updated_at") values (:1, :2, :3, :4, :5, :6, :7) returning "id" into :8\' using ?, ?, ?, ?, ?, ?, ?, out ?;end;',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test4@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-              function (v) {
-                return v.toString() === '[object ReturningHelper:id]';
-              },
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test5@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-              function (v) {
-                return v.toString() === '[object ReturningHelper:id]';
-              },
-            ],
-            ['4', '5']
-          );
-          tester(
-            'mssql',
-            'insert into [accounts] ([about], [created_at], [email], [first_name], [last_name], [logins], [updated_at]) output inserted.[id] values (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?)',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test4@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test5@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-            ],
-            ['4', '5']
-          );
         });
     });
 
     it('will fail when multiple inserts are made into a unique column', function () {
-      if (/redshift/i.test(knex.client.driverName)) {
-        return this.skip();
-      }
       return knex.table('accounts')
         .where('id', '>', 1)
         .orWhere('x', 2)
@@ -514,63 +161,8 @@ module.exports = function (knex) {
         )
         .testSql(function (tester) {
           tester(
-            'mysql',
-            'insert into `accounts` (`about`, `created_at`, `email`, `first_name`, `last_name`, `logins`, `updated_at`) values (?, ?, ?, ?, ?, ?, ?)',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test5@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-            ]
-          );
-          tester(
-            'pg',
-            'insert into "accounts" ("about", "created_at", "email", "first_name", "last_name", "logins", "updated_at") values (?, ?, ?, ?, ?, ?, ?) returning "id"',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test5@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-            ]
-          );
-          tester(
             'sqlite3',
             'insert into `accounts` (`about`, `created_at`, `email`, `first_name`, `last_name`, `logins`, `updated_at`) values (?, ?, ?, ?, ?, ?, ?)',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test5@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-            ]
-          );
-          tester(
-            'oracledb',
-            'insert into "accounts" ("about", "created_at", "email", "first_name", "last_name", "logins", "updated_at") values (?, ?, ?, ?, ?, ?, ?) returning "id" into ?',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test5@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-              function (v) {
-                return v.toString() === '[object ReturningHelper:id]';
-              },
-            ]
-          );
-          tester(
-            'mssql',
-            'insert into [accounts] ([about], [created_at], [email], [first_name], [last_name], [logins], [updated_at]) output inserted.[id] values (?, ?, ?, ?, ?, ?, ?)',
             [
               'Lorem ipsum Dolore labore incididunt enim.',
               TEST_TIMESTAMP,
@@ -610,48 +202,6 @@ module.exports = function (knex) {
         )
         .testSql(function (tester) {
           tester(
-            'mysql',
-            'insert into `accounts` (`about`, `created_at`, `email`, `first_name`, `last_name`, `logins`, `updated_at`) values (?, ?, ?, ?, ?, ?, ?)',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test6@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-            ],
-            [7]
-          );
-          tester(
-            'pg',
-            'insert into "accounts" ("about", "created_at", "email", "first_name", "last_name", "logins", "updated_at") values (?, ?, ?, ?, ?, ?, ?) returning "id"',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test6@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-            ],
-            ['7']
-          );
-          tester(
-            'pg-redshift',
-            'insert into "accounts" ("about", "created_at", "email", "first_name", "last_name", "logins", "updated_at") values (?, ?, ?, ?, ?, ?, ?)',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test6@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-            ],
-            1
-          );
-          tester(
             'sqlite3',
             'insert into `accounts` (`about`, `created_at`, `email`, `first_name`, `last_name`, `logins`, `updated_at`) values (?, ?, ?, ?, ?, ?, ?)',
             [
@@ -665,37 +215,6 @@ module.exports = function (knex) {
             ],
             [6]
           );
-          tester(
-            'oracledb',
-            'insert into "accounts" ("about", "created_at", "email", "first_name", "last_name", "logins", "updated_at") values (?, ?, ?, ?, ?, ?, ?) returning "id" into ?',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test6@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-              function (v) {
-                return v.toString() === '[object ReturningHelper:id]';
-              },
-            ],
-            ['7']
-          );
-          tester(
-            'mssql',
-            'insert into [accounts] ([about], [created_at], [email], [first_name], [last_name], [logins], [updated_at]) output inserted.[id] values (?, ?, ?, ?, ?, ?, ?)',
-            [
-              'Lorem ipsum Dolore labore incididunt enim.',
-              TEST_TIMESTAMP,
-              'test6@example.com',
-              'Test',
-              'User',
-              2,
-              TEST_TIMESTAMP,
-            ],
-            ['7']
-          );
         });
     });
 
@@ -704,35 +223,10 @@ module.exports = function (knex) {
         .insert({ enum_value: 'd' })
         .testSql(function (tester) {
           tester(
-            'mysql',
-            'insert into `datatype_test` (`enum_value`) values (?)',
-            ['d']
-          );
-          tester(
-            'pg',
-            'insert into "datatype_test" ("enum_value") values (?)',
-            ['d']
-          );
-          tester(
-            'pg-redshift',
-            'insert into "datatype_test" ("enum_value") values (?)',
-            ['d']
-          );
-          tester(
             'sqlite3',
             'insert into `datatype_test` (`enum_value`) values (?)',
             ['d'],
             [1]
-          );
-          tester(
-            'oracledb',
-            'insert into "datatype_test" ("enum_value") values (?)',
-            ['d']
-          );
-          tester(
-            'mssql',
-            'insert into [datatype_test] ([enum_value]) values (?)',
-            ['d']
           );
         })
         .then(
@@ -779,42 +273,8 @@ module.exports = function (knex) {
             .insert({}, 'id')
             .testSql(function (tester) {
               tester(
-                'mysql',
-                'insert into `test_default_table` () values ()',
-                [],
-                [1]
-              );
-              tester(
-                'pg',
-                'insert into "test_default_table" default values returning "id"',
-                [],
-                [1]
-              );
-              tester(
-                'pg-redshift',
-                'insert into "test_default_table" default values',
-                [],
-                1
-              );
-              tester(
                 'sqlite3',
                 'insert into `test_default_table` default values',
-                [],
-                [1]
-              );
-              tester(
-                'oracledb',
-                'insert into "test_default_table" ("id") values (default) returning "id" into ?',
-                [
-                  function (v) {
-                    return v.toString() === '[object ReturningHelper:id]';
-                  },
-                ],
-                ['1']
-              );
-              tester(
-                'mssql',
-                'insert into [test_default_table] output inserted.[id] default values',
                 [],
                 [1]
               );
@@ -834,42 +294,8 @@ module.exports = function (knex) {
             .insert([{}], 'id')
             .testSql(function (tester) {
               tester(
-                'mysql',
-                'insert into `test_default_table2` () values ()',
-                [],
-                [1]
-              );
-              tester(
-                'pg',
-                'insert into "test_default_table2" default values returning "id"',
-                [],
-                [1]
-              );
-              tester(
-                'pg-redshift',
-                'insert into "test_default_table2" default values',
-                [],
-                1
-              );
-              tester(
                 'sqlite3',
                 'insert into `test_default_table2` default values',
-                [],
-                [1]
-              );
-              tester(
-                'oracledb',
-                'insert into "test_default_table2" ("id") values (default) returning "id" into ?',
-                [
-                  function (v) {
-                    return v.toString() === '[object ReturningHelper:id]';
-                  },
-                ],
-                ['1']
-              );
-              tester(
-                'mssql',
-                'insert into [test_default_table2] output inserted.[id] default values',
                 [],
                 [1]
               );
@@ -888,42 +314,6 @@ module.exports = function (knex) {
         .insert(insertData, ['account_id', 'details'])
         .testSql(function (tester) {
           tester(
-            'mysql',
-            'insert into `test_table_two` (`account_id`, `details`, `status`) values (?, ?, ?)',
-            [
-              10,
-              'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-              0,
-            ],
-            [4]
-          );
-          tester(
-            'pg',
-            'insert into "test_table_two" ("account_id", "details", "status") values (?, ?, ?) returning "account_id", "details"',
-            [
-              10,
-              'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-              0,
-            ],
-            [
-              {
-                account_id: 10,
-                details:
-                  'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-              },
-            ]
-          );
-          tester(
-            'pg-redshift',
-            'insert into "test_table_two" ("account_id", "details", "status") values (?, ?, ?)',
-            [
-              10,
-              'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-              0,
-            ],
-            1
-          );
-          tester(
             'sqlite3',
             'insert into `test_table_two` (`account_id`, `details`, `status`) values (?, ?, ?)',
             [
@@ -932,44 +322,6 @@ module.exports = function (knex) {
               0,
             ],
             [4]
-          );
-          tester(
-            'oracledb',
-            `insert into "test_table_two" ("account_id", "details", "status") values (?, ?, ?) returning "account_id","details" into ?,?`,
-            [
-              10,
-              'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-              0,
-              function (v) {
-                return v.toString() === '[object ReturningHelper:account_id]';
-              },
-              function (v) {
-                return v.toString() === '[object ReturningHelper:details]';
-              },
-            ],
-            [
-              {
-                account_id: '10',
-                details:
-                  'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-              },
-            ]
-          );
-          tester(
-            'mssql',
-            'insert into [test_table_two] ([account_id], [details], [status]) output inserted.[account_id], inserted.[details] values (?, ?, ?)',
-            [
-              10,
-              'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-              0,
-            ],
-            [
-              {
-                account_id: 10,
-                details:
-                  'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-              },
-            ]
           );
         })
         .then(function (rows) {
@@ -981,94 +333,6 @@ module.exports = function (knex) {
             expect(_.keys(rows[0]).length).to.equal(2);
             expect(rows[0].account_id).to.equal(insertData.account_id);
             expect(rows[0].details).to.equal(insertData.details);
-          }
-        });
-    });
-
-    it('should allow a * for returning in postgres and oracle', function () {
-      if (/redshift/i.test(knex.client.driverName)) {
-        return this.skip();
-      }
-      const insertData = {
-        account_id: 10,
-        details:
-          'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-        status: 0,
-      };
-
-      const returningColumn = '*';
-      return knex.table('test_table_two')
-        .insert(insertData, returningColumn)
-        .testSql(function (tester) {
-          tester(
-            'pg',
-            'insert into "test_table_two" ("account_id", "details", "status") values (?, ?, ?) returning *',
-            [
-              10,
-              'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-              0,
-            ],
-            [
-              {
-                id: 5,
-                account_id: 10,
-                details:
-                  'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-                status: 0,
-                json_data: null,
-              },
-            ]
-          );
-          tester(
-            'oracledb',
-            'insert into "test_table_two" ("account_id", "details", "status") values (?, ?, ?) returning "ROWID" into ?',
-            [
-              10,
-              'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-              0,
-              function (v) {
-                return v.toString() === '[object ReturningHelper:ROWID]';
-              },
-            ],
-            [
-              {
-                id: 5,
-                account_id: 10,
-                details:
-                  'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-                status: 0,
-                json_data: null,
-              },
-            ]
-          );
-          tester(
-            'mssql',
-            'insert into [test_table_two] ([account_id], [details], [status]) output inserted.* values (?, ?, ?)',
-            [
-              10,
-              'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-              0,
-            ],
-            [
-              {
-                id: 5,
-                account_id: 10,
-                details:
-                  'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-                status: 0,
-                json_data: null,
-              },
-            ]
-          );
-        })
-        .then(function (rows) {
-          expect(rows.length).to.equal(1);
-          if (knex.client.driverName === 'pg') {
-            expect(_.keys(rows[0]).length).to.equal(5);
-            expect(rows[0].account_id).to.equal(insertData.account_id);
-            expect(rows[0].details).to.equal(insertData.details);
-            expect(rows[0].status).to.equal(insertData.status);
-            expect(rows[0].json_data).to.equal(null);
           }
         });
     });
@@ -1104,13 +368,6 @@ module.exports = function (knex) {
           .batchInsert('BatchInsert', items, 30)
           .returning(['Col1', 'Col2'])
           .then(function (result) {
-            //Returning only supported by some dialects.
-            if (['pg', 'oracledb'].indexOf(driverName) !== -1) {
-              result.forEach(function (item) {
-                expect(item.Col1).to.equal(fiftyLengthString);
-                expect(item.Col2).to.equal(fiftyLengthString);
-              });
-            }
             return knex.table('BatchInsert').select();
           })
           .then(function (result) {
@@ -1120,9 +377,6 @@ module.exports = function (knex) {
       });
 
       it('#1880 - Duplicate keys in batchInsert should not throw unhandled exception', async function () {
-        if (/redshift/i.test(knex.client.driverName)) {
-          return this.skip();
-        }
         this.timeout(10000);
 
         const fn = sinon.stub();
@@ -1279,16 +533,6 @@ module.exports = function (knex) {
           .ignore()
           .testSql(function (tester) {
             tester(
-              'mysql',
-              'insert ignore into `upsert_tests` (`email`, `name`) values (?, ?)',
-              ['ignoretest@example.com', 'AFTER']
-            );
-            tester(
-              'pg',
-              'insert into "upsert_tests" ("email", "name") values (?, ?) on conflict ("email") do nothing returning "email"',
-              ['ignoretest@example.com', 'AFTER']
-            );
-            tester(
               'sqlite3',
               'insert into `upsert_tests` (`email`, `name`) values (?, ?) on conflict (`email`) do nothing',
               ['ignoretest@example.com', 'AFTER']
@@ -1343,16 +587,6 @@ module.exports = function (knex) {
           .ignore()
           .testSql(function (tester) {
             tester(
-              'mysql',
-              'insert ignore into `upsert_composite_key_tests` (`email`, `name`, `org`) values (?, ?, ?)',
-              ['ignoretest@example.com', 'AFTER', 'acme-inc']
-            );
-            tester(
-              'pg',
-              'insert into "upsert_composite_key_tests" ("email", "name", "org") values (?, ?, ?) on conflict ("org", "email") do nothing returning "email"',
-              ['ignoretest@example.com', 'AFTER', 'acme-inc']
-            );
-            tester(
               'sqlite3',
               'insert into `upsert_composite_key_tests` (`email`, `name`, `org`) values (?, ?, ?) on conflict (`org`, `email`) do nothing',
               ['ignoretest@example.com', 'AFTER', 'acme-inc']
@@ -1401,16 +635,6 @@ module.exports = function (knex) {
           .onConflict('email')
           .merge()
           .testSql(function (tester) {
-            tester(
-              'mysql',
-              'insert into `upsert_tests` (`email`, `name`) values (?, ?) on duplicate key update `email` = values(`email`), `name` = values(`name`)',
-              ['mergetest@example.com', 'AFTER']
-            );
-            tester(
-              'pg',
-              'insert into "upsert_tests" ("email", "name") values (?, ?) on conflict ("email") do update set "email" = excluded."email", "name" = excluded."name" returning "email"',
-              ['mergetest@example.com', 'AFTER']
-            );
             tester(
               'sqlite3',
               'insert into `upsert_tests` (`email`, `name`) values (?, ?) on conflict (`email`) do update set `email` = excluded.`email`, `name` = excluded.`name`',
@@ -1464,27 +688,12 @@ module.exports = function (knex) {
           .where('upsert_tests.role', 'tester')
           .testSql(function (tester) {
             tester(
-              'pg',
-              'insert into "upsert_tests" ("email", "name") values (?, ?) on conflict ("email") do update set "email" = excluded."email", "name" = excluded."name" where "upsert_tests"."role" = ? returning "email"',
-              ['mergetest@example.com', 'AFTER', 'tester']
-            );
-            tester(
               'sqlite3',
               'insert into `upsert_tests` (`email`, `name`) values (?, ?) on conflict (`email`) do update set `email` = excluded.`email`, `name` = excluded.`name` where `upsert_tests`.`role` = ?',
               ['mergetest@example.com', 'AFTER', 'tester']
             );
           });
       } catch (err) {
-        if (/oracle|mssql/i.test(knex.client.driverName)) {
-          expect(err).to.be.an('error');
-          if (err.message.includes('.onConflict() is not supported for'))
-            return;
-        }
-        if (/mysql|mysql2/i.test(knex.client.driverName)) {
-          expect(err).to.be.an('error');
-          if (err.message.includes('.onConflict().merge().where() is not supported for'))
-            return;
-        }
         throw err;
       }
 
@@ -1497,10 +706,6 @@ module.exports = function (knex) {
     });
 
     it('will silently do nothing when inserting a duplicate key to unique column and merge with where clause matching no rows is specified', async function () {
-      if (/redshift/i.test(knex.client.driverName)) {
-        return this.skip();
-      }
-
       // Setup: Create table with unique email column
       await knex.schema.dropTableIfExists('upsert_tests');
       await knex.schema.createTable('upsert_tests', (table) => {
@@ -1526,27 +731,12 @@ module.exports = function (knex) {
           .where('upsert_tests.role', 'fake-role')
           .testSql(function (tester) {
             tester(
-              'pg',
-              'insert into "upsert_tests" ("email", "name") values (?, ?) on conflict ("email") do update set "email" = excluded."email", "name" = excluded."name" where "upsert_tests"."role" = ? returning "email"',
-              ['mergetest@example.com', 'AFTER', 'fake-role']
-            );
-            tester(
               'sqlite3',
               'insert into `upsert_tests` (`email`, `name`) values (?, ?) on conflict (`email`) do update set `email` = excluded.`email`, `name` = excluded.`name` where `upsert_tests`.`role` = ?',
               ['mergetest@example.com', 'AFTER', 'fake-role']
             );
           });
       } catch (err) {
-        if (/oracle|mssql/i.test(knex.client.driverName)) {
-          expect(err).to.be.an('error');
-          if (err.message.includes('.onConflict() is not supported for'))
-            return;
-        }
-        if (/mysql|mysql2/i.test(knex.client.driverName)) {
-          expect(err).to.be.an('error');
-          if (err.message.includes('.onConflict().merge().where() is not supported for'))
-            return;
-        }
         throw err;
       }
 
@@ -1559,10 +749,6 @@ module.exports = function (knex) {
     });
 
     it('updates columns with raw value when inserting a duplicate key to unique column and merge is specified', async function () {
-      if (/redshift/i.test(knex.client.driverName)) {
-        return this.skip();
-      }
-
       // Setup: Create table with unique email column
       await knex.schema.dropTableIfExists('upsert_tests');
       await knex.schema.createTable('upsert_tests', (table) => {
@@ -1593,27 +779,12 @@ module.exports = function (knex) {
           .merge()
           .testSql(function (tester) {
             tester(
-              'mysql',
-              "insert into `upsert_tests` (`email`, `name`) values (?, (SELECT name FROM (SELECT * FROM upsert_tests) AS t WHERE email = 'mergesource@example.com')) on duplicate key update `email` = values(`email`), `name` = values(`name`)",
-              ['mergedest@example.com']
-            );
-            tester(
-              'pg',
-              'insert into "upsert_tests" ("email", "name") values (?, (SELECT name FROM (SELECT * FROM upsert_tests) AS t WHERE email = \'mergesource@example.com\')) on conflict ("email") do update set "email" = excluded."email", "name" = excluded."name" returning "email"',
-              ['mergedest@example.com']
-            );
-            tester(
               'sqlite3',
               "insert into `upsert_tests` (`email`, `name`) values (?, (SELECT name FROM (SELECT * FROM upsert_tests) AS t WHERE email = 'mergesource@example.com')) on conflict (`email`) do update set `email` = excluded.`email`, `name` = excluded.`name`",
               ['mergedest@example.com']
             );
           });
       } catch (err) {
-        if (/oracle|mssql/i.test(knex.client.driverName)) {
-          expect(err).to.be.an('error');
-          if (err.message.includes('.onConflict() is not supported for'))
-            return;
-        }
         throw err;
       }
 
@@ -1626,10 +797,6 @@ module.exports = function (knex) {
     });
 
     it('updates columns with raw value when inserting a duplicate key to unique column and merge with updates is specified', async function () {
-      if (/redshift/i.test(knex.client.driverName)) {
-        return this.skip();
-      }
-
       // Setup table for testing knex.raw with
       await knex.schema.dropTableIfExists('upsert_value_source');
       await knex.schema.createTable('upsert_value_source', (table) => {
@@ -1661,27 +828,12 @@ module.exports = function (knex) {
           .merge({ name: knex.raw('(SELECT name FROM upsert_value_source)') })
           .testSql(function (tester) {
             tester(
-              'mysql',
-              'insert into `upsert_tests` (`email`, `name`) values (?, ?) on duplicate key update `name` = (SELECT name FROM upsert_value_source)',
-              ['mergedest@example.com', 'SHOULD NOT BE USED']
-            );
-            tester(
-              'pg',
-              'insert into "upsert_tests" ("email", "name") values (?, ?) on conflict ("email") do update set "name" = (SELECT name FROM upsert_value_source) returning "email"',
-              ['mergedest@example.com', 'SHOULD NOT BE USED']
-            );
-            tester(
               'sqlite3',
               'insert into `upsert_tests` (`email`, `name`) values (?, ?) on conflict (`email`) do update set `name` = (SELECT name FROM upsert_value_source)',
               ['mergedest@example.com', 'SHOULD NOT BE USED']
             );
           });
       } catch (err) {
-        if (/oracle|mssql/i.test(knex.client.driverName)) {
-          expect(err).to.be.an('error');
-          if (err.message.includes('.onConflict() is not supported for'))
-            return;
-        }
         throw err;
       }
 
@@ -1694,10 +846,6 @@ module.exports = function (knex) {
     });
 
     it('updates and inserts columns when inserting multiple rows merge is specified', async function () {
-      if (/redshift/i.test(knex.client.driverName)) {
-        return this.skip();
-      }
-
       // Setup: Create table with unique email column
       await knex.schema.dropTableIfExists('upsert_tests');
       await knex.schema.createTable('upsert_tests', (table) => {
@@ -1726,27 +874,12 @@ module.exports = function (knex) {
           .merge()
           .testSql(function (tester) {
             tester(
-              'mysql',
-              'insert into `upsert_tests` (`email`, `name`) values (?, ?), (?, ?) on duplicate key update `email` = values(`email`), `name` = values(`name`)',
-              ['two@example.com', 'AFTER', 'three@example.com', 'AFTER']
-            );
-            tester(
-              'pg',
-              'insert into "upsert_tests" ("email", "name") values (?, ?), (?, ?) on conflict ("email") do update set "email" = excluded."email", "name" = excluded."name" returning "email"',
-              ['two@example.com', 'AFTER', 'three@example.com', 'AFTER']
-            );
-            tester(
               'sqlite3',
               'insert into `upsert_tests` (`email`, `name`) select ? as `email`, ? as `name` union all select ? as `email`, ? as `name` where true on conflict (`email`) do update set `email` = excluded.`email`, `name` = excluded.`name`',
               ['two@example.com', 'AFTER', 'three@example.com', 'AFTER']
             );
           });
       } catch (err) {
-        if (/oracle|mssql/i.test(knex.client.driverName)) {
-          expect(err).to.be.an('error');
-          if (err.message.includes('.onConflict() is not supported for'))
-            return;
-        }
         throw err;
       }
 
