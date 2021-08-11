@@ -65,6 +65,8 @@ module.exports = function (knex) {
           promise = promise.then(function (resp) {
             if (typeof returnval === 'function') {
               expect(!!returnval(resp)).to.equal(true);
+            } else if (Array.isArray(resp) && Array.isArray(returnval)) {
+              return expect(stripDates(resp)[0]).to.eql(returnval[0]);
             } else {
               expect(stripDates(resp)).to.eql(returnval);
             }
