@@ -37,53 +37,38 @@ module.exports = function (knex) {
 
   // Useful in cases where we want to just test the sql for both PG and SQLite3
   function testSqlTester(qb, driverName, statement, bindings, returnval) {
-    if (Array.isArray(driverName)) {
-      driverName.forEach(function (val) {
-        testSqlTester(qb, val, statement, bindings, returnval);
-      });
-    } else if (client.driverName === driverName) {
-      const sql = qb.toSQL();
+    const sql = qb.toSQL();
 
-      if (statement) {
-        if (Array.isArray(sql)) {
-          expect(_.map(sql, 'sql')).to.eql(statement);
-        } else {
-          expect(sql.sql).to.equal(statement);
-        }
+    if (statement) {
+      if (Array.isArray(sql)) {
+        expect(_.map(sql, 'sql')).to.eql(statement);
+      } else {
+        expect(sql.sql).to.equal(statement);
       }
-      if (bindings) {
-        if (Array.isArray(sql)) {
-          compareBindings(_.map(sql, 'bindings'), bindings);
-        } else {
-          compareBindings(sql.bindings, bindings);
-        }
+    }
+    if (bindings) {
+      if (Array.isArray(sql)) {
+        compareBindings(_.map(sql, 'bindings'), bindings);
+      } else {
+        compareBindings(sql.bindings, bindings);
       }
-      if (returnval !== undefined && returnval !== null) {
-        const oldThen = qb.then;
-        qb.then = function () {
-          let promise = oldThen.apply(this, []);
-          promise = promise.then(function (resp) {
-            if (typeof returnval === 'function') {
-              expect(!!returnval(resp)).to.equal(true);
-            } else if (Array.isArray(resp) && Array.isArray(returnval)) {
-              return expect(stripDates(resp)[0]).to.eql(returnval[0]);
-            } else {
-              expect(stripDates(resp)).to.eql(returnval);
-            }
-            return resp;
-          });
-          return promise.then.apply(promise, arguments);
-        };
-      }
-    } else {
-      if (!allowedClients.includes(driverName)) {
-        throw new Error(
-          'Invalid client name: ' +
-            driverName +
-            ' Should be one of: ' +
-            allowedClients.join(',')
-        );
-      }
+    }
+    if (returnval !== undefined && returnval !== null) {
+      const oldThen = qb.then;
+      qb.then = function () {
+        let promise = oldThen.apply(this, []);
+        promise = promise.then(function (resp) {
+          if (typeof returnval === 'function') {
+            expect(!!returnval(resp)).to.equal(true);
+          }/* else if (Array.isArray(resp) && Array.isArray(returnval)) {
+            return expect(stripDates(resp)[0]).to.eql(returnval[0]);
+          }*/ else {
+            expect(stripDates(resp)).to.eql(returnval);
+          }
+          return resp;
+        });
+        return promise.then.apply(promise, arguments);
+      };
     }
   }
 

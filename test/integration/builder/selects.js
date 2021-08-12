@@ -11,20 +11,47 @@ const {TEST_TIMESTAMP} = require('../../util/constants');
 module.exports = function (knex) {
     describe('Selects', function () {
         it('runs with no conditions', async function () {
+            await knex.schema.dropTableIfExists('test_table_two')
+            await knex.schema.createTableIfNotExists('test_table_two', (t) => {
+                t.increments('id')
+                t.integer('account_id')
+                t.boolean('status')
+            })
+
+            await knex.schema.dropTableIfExists('accounts')
             await knex.schema.createTableIfNotExists('accounts', (t) => {
                 t.increments('id')
-                t.string('first_name')
-                t.string('last_name')
-                t.string('email')
-                t.boolean('logins')
-                t.text('about')
-                t.timestamp('created_at')
-                t.timestamp('updated_at')
+                t.string('first_name').nullable()
+                t.string('last_name').nullable()
+                t.string('email').nullable()
+                t.boolean('logins').nullable()
+                t.integer('balance').nullable()
+                t.string('phone').nullable()
+                t.text('about').nullable()
+                t.timestamp('created_at').nullable()
+                t.timestamp('updated_at').nullable()
             })
             return knex.table('accounts').select();
         });
 
-        it('returns an array of a single column with `pluck`', function () {
+        it('returns an array of a single column with `pluck`', async function () {
+            await knex.table('accounts').insert({
+                id: 1,
+                first_name: 'Test',
+                last_name: 'User',
+                email: 'test@example.com',
+                logins: 1,
+                balance: 0,
+                about: 'Lorem ipsum Dolore labore incididunt enim.',
+                created_at: TEST_TIMESTAMP,
+                updated_at: TEST_TIMESTAMP,
+                phone: null,
+            })
+            await knex.table('accounts').insert({})
+            await knex.table('accounts').insert({})
+            await knex.table('accounts').insert({})
+            await knex.table('accounts').insert({})
+            await knex.table('accounts').insert({})
             return knex
                 .pluck('id')
                 .orderBy('id')
@@ -85,114 +112,8 @@ module.exports = function (knex) {
                 });
         });
 
-        it('allows you to stream', function () {
-            let count = 0;
-            return knex.table('accounts')
-                .stream(function (rowStream) {
-                    rowStream.on('data', function () {
-                        count++;
-                    });
-                })
-                .then(function () {
-                    assert(count === 6, 'Six rows should have been streamed');
-                });
-        });
-
-        it('returns a stream if not passed a function', function (done) {
-            let count = 0;
-            const stream = knex.table('accounts').stream();
-            stream.on('data', function () {
-                count++;
-                if (count === 6) done();
-            });
-        });
-
-        it('emits error on the stream, if not passed a function, and connecting fails', function () {
-            const expected = new Error();
-            const original = Runner.prototype.ensureConnection;
-            Runner.prototype.ensureConnection = function () {
-                return Promise.reject(expected);
-            };
-
-            const restore = () => {
-                Runner.prototype.ensureConnection = original;
-            };
-
-            const promise = new Promise((resolve, reject) => {
-                const timeout = setTimeout(() => {
-                    reject(new Error('Timeout'));
-                }, 5000);
-
-                const stream = knex.table('accounts').stream();
-                stream.on('error', function (actual) {
-                    clearTimeout(timeout);
-
-                    if (actual === expected) {
-                        resolve();
-                    } else {
-                        reject(new Error('Stream emitted unexpected error'));
-                    }
-                });
-            });
-
-            promise.then(restore, restore);
-            return promise;
-        });
-
-        it('emits error on the stream, if not passed a function, and query fails', function (done) {
-            const stream = knex.table('accounts').select('invalid_field').stream();
-            stream.on('error', function (err) {
-                assert(err instanceof Error);
-                done();
-            });
-        });
-
-        it('emits error if not passed a function and the query has wrong bindings', function (done) {
-            const stream = knex.table('accounts')
-                .whereRaw('id = ? and first_name = ?', ['2'])
-                .stream();
-            stream.on('error', function (err) {
-                assert(err instanceof Error);
-                done();
-            });
-        });
-
-        it('properly escapes postgres queries on streaming', function () {
-            let count = 0;
-            return knex.table('accounts')
-                .where('id', 1)
-                .stream(function (rowStream) {
-                    rowStream.on('data', function () {
-                        count++;
-                    });
-                })
-                .then(function () {
-                    assert(count === 1, 'One row should have been streamed');
-                });
-        });
-
-        it('throws errors on the asCallback if uncaught in the last block', function (ok) {
-            const listeners = process.listeners('uncaughtException');
-
-            process.removeAllListeners('uncaughtException');
-
-            process.on('uncaughtException', function () {
-                process.removeAllListeners('uncaughtException');
-                for (let i = 0, l = listeners.length; i < l; i++) {
-                    process.on('uncaughtException', listeners[i]);
-                }
-                ok();
-            });
-
-            knex.table('accounts')
-                .select()
-                .asCallback(function () {
-                    this.undefinedVar.test;
-                });
-        });
-
         describe('simple "where" cases', function () {
-            it('allows key, value', function () {
+            it('allows key, value', async function () {
                 return knex.table('accounts')
                     .where('id', 1)
                     .select('first_name', 'last_name')
@@ -395,7 +316,15 @@ module.exports = function (knex) {
                 .select();
         });
 
-        it('handles multi-column "where in" cases', function () {
+        it('handles multi-column "where in" cases', async function () {
+            await knex.schema.createTableIfNotExists('composite_key_test', (t) => {
+                t.string('column_a')
+                t.string('column_b')
+                t.unique(['column_a', 'column_b'])
+            })
+            return knex.schema.table('composite_key_test', (t) => {
+                t.dropUnique(['column_a', 'column_b']);
+            });
 
             return knex.table('composite_key_test')
                 .whereIn(
@@ -431,12 +360,12 @@ module.exports = function (knex) {
 
         });
 
-        it('handles "where exists"', function () {
-            return knex.table('accounts')
+        it('handles "where exists"', async function () {
+            return await knex.table('accounts')
                 .whereExists(function () {
                     this.select('id').from('test_table_two').where({id: 1});
                 })
-                .select();
+                .select()
         });
 
         it('handles "where between"', function () {
@@ -526,10 +455,6 @@ module.exports = function (knex) {
 
                     return true;
                 });
-        });
-
-        it.skip('select forUpdate().first() bug in oracle (--------- TODO: FIX)', function () {
-            return knex.table('accounts').where('id', 1).forUpdate().first();
         });
     });
 };

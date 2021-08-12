@@ -4,8 +4,22 @@ const expect = require('chai').expect;
 
 module.exports = function (knex) {
   describe('unions', function () {
-    it('handles unions with a callback', function () {
-      return knex('accounts')
+    it('handles unions with a callback', async function () {
+      await knex.schema.dropTableIfExists('accounts')
+      await knex.schema.createTableIfNotExists('accounts', (t) => {
+        t.increments('id')
+        t.string('first_name').nullable()
+        t.string('last_name').nullable()
+        t.string('email').nullable()
+        t.boolean('logins').nullable()
+        t.integer('balance').nullable()
+        t.string('phone').nullable()
+        t.text('about').nullable()
+        t.timestamp('created_at').nullable()
+        t.timestamp('updated_at').nullable()
+      })
+
+      return knex.table('accounts')
         .select('*')
         .where('id', '=', 1)
         .union(function () {
@@ -14,7 +28,7 @@ module.exports = function (knex) {
     });
 
     it('handles unions with an array of callbacks', function () {
-      return knex('accounts')
+      return knex.table('accounts')
         .select('*')
         .where('id', '=', 1)
         .union([
@@ -28,7 +42,7 @@ module.exports = function (knex) {
     });
 
     it('handles unions with a list of callbacks', function () {
-      return knex('accounts')
+      return knex.table('accounts')
         .select('*')
         .where('id', '=', 1)
         .union(
@@ -42,7 +56,7 @@ module.exports = function (knex) {
     });
 
     it('handles unions with an array of builders', function () {
-      return knex('accounts')
+      return knex.table('accounts')
         .select('*')
         .where('id', '=', 1)
         .union([
@@ -52,7 +66,7 @@ module.exports = function (knex) {
     });
 
     it('handles unions with a list of builders', function () {
-      return knex('accounts')
+      return knex.table('accounts')
         .select('*')
         .where('id', '=', 1)
         .union(
@@ -62,7 +76,7 @@ module.exports = function (knex) {
     });
 
     it('handles unions with a raw query', function () {
-      return knex('accounts')
+      return knex.table('accounts')
         .select('*')
         .where('id', '=', 1)
         .union(
@@ -71,7 +85,7 @@ module.exports = function (knex) {
     });
 
     it('handles unions with an array raw queries', function () {
-      return knex('accounts')
+      return knex.table('accounts')
         .select('*')
         .where('id', '=', 1)
         .union([
@@ -81,7 +95,7 @@ module.exports = function (knex) {
     });
 
     it('handles unions with a list of raw queries', function () {
-      return knex('accounts')
+      return knex.table('accounts')
         .select('*')
         .where('id', '=', 1)
         .union(
@@ -107,7 +121,7 @@ module.exports = function (knex) {
       });
 
       beforeEach(function () {
-        return knex('intersect_test').insert([
+        return knex.table('intersect_test').insert([
           {
             id: 1,
             test_col_1: 1,
@@ -146,7 +160,7 @@ module.exports = function (knex) {
       });
 
       it('handles intersects with a callback', function () {
-        return knex('intersect_test')
+        return knex.table('intersect_test')
           .select('*')
           .where('test_col_1', '=', 1)
           .intersect(function () {
@@ -159,7 +173,7 @@ module.exports = function (knex) {
       });
 
       it('handles intersects with an array of callbacks', function () {
-        return knex('intersect_test')
+        return knex.table('intersect_test')
           .select('*')
           .where('test_col_1', '=', 1)
           .intersect([
@@ -177,7 +191,7 @@ module.exports = function (knex) {
       });
 
       it('handles intersects with a list of callbacks', function () {
-        return knex('intersect_test')
+        return knex.table('intersect_test')
           .select('*')
           .where('test_col_1', '=', 1)
           .intersect(
@@ -195,7 +209,7 @@ module.exports = function (knex) {
       });
 
       it('handles intersects with an array of builders', function () {
-        return knex('intersect_test')
+        return knex.table('intersect_test')
           .select('*')
           .where('test_col_1', '=', 1)
           .intersect([
@@ -209,7 +223,7 @@ module.exports = function (knex) {
       });
 
       it('handles intersects with a list of builders', function () {
-        return knex('intersect_test')
+        return knex.table('intersect_test')
           .select('*')
           .where('test_col_1', '=', 1)
           .intersect(
@@ -223,7 +237,7 @@ module.exports = function (knex) {
       });
 
       it('handles intersects with a raw query', function () {
-        return knex('intersect_test')
+        return knex.table('intersect_test')
           .select('*')
           .where('test_col_1', '=', 2)
           .intersect(
@@ -240,7 +254,7 @@ module.exports = function (knex) {
       });
 
       it('handles intersects with an array raw queries', function () {
-        return knex('intersect_test')
+        return knex.table('intersect_test')
           .select('*')
           .where('test_col_1', '=', 1)
           .intersect([
@@ -262,7 +276,7 @@ module.exports = function (knex) {
       });
 
       it('handles intersects with a list of raw queries', function () {
-        return knex('intersect_test')
+        return knex.table('intersect_test')
           .select('*')
           .where('test_col_1', '=', 1)
           .intersect(

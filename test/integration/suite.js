@@ -15,11 +15,11 @@ module.exports = function (knex) {
     // require('./schema')(knex);
     // require('./schema/foreign-keys')(knex);
     // require('./builder/inserts')(knex);
-
-    require('./builder/selects')(knex);
-
+    // require('./builder/selects')(knex);
     // require('./builder/unions')(knex);
-    // require('./builder/joins')(knex);
+
+    require('./builder/joins')(knex);
+
     // require('./builder/aggregate')(knex);
     // require('./builder/updates')(knex);
     // require('./builder/transaction')(knex);
