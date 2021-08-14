@@ -297,6 +297,7 @@ module.exports = function (knex) {
             [
               {
                 id: 1,
+                json_data: null,
                 first_name: 'Test',
                 last_name: 'User',
                 email: 'test@example.com',
@@ -309,10 +310,11 @@ module.exports = function (knex) {
                 account_id: 1,
                 details:
                   'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-                status: 0,
+                status: null,
               },
               {
                 id: 2,
+                json_data: null,
                 first_name: 'Test',
                 last_name: 'User',
                 email: 'test2@example.com',
@@ -325,11 +327,11 @@ module.exports = function (knex) {
                 account_id: 2,
                 details:
                   'Lorem ipsum Minim nostrud Excepteur consectetur enim ut qui sint in veniam in nulla anim do cillum sunt voluptate Duis non incididunt.',
-                status: 1,
-                json_data: null,
+                status: null,
               },
+
               {
-                id: 3,
+                id: null,
                 first_name: 'Test',
                 last_name: 'User',
                 email: 'test3@example.com',
@@ -341,21 +343,6 @@ module.exports = function (knex) {
                 phone: null,
                 account_id: 3,
                 details: '',
-                status: 1,
-              },
-              {
-                id: null,
-                first_name: 'Test',
-                last_name: 'User',
-                email: 'test4@example.com',
-                logins: 2,
-                balance: 0,
-                about: 'Lorem ipsum Dolore labore incididunt enim.',
-                created_at: TEST_TIMESTAMP,
-                updated_at: TEST_TIMESTAMP,
-                phone: null,
-                account_id: null,
-                details: null,
                 status: null,
                 json_data: null,
               },
