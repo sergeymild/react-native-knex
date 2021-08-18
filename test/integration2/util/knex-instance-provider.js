@@ -8,7 +8,7 @@ const Db = {
 const defaultDbs = [Db.SQLite];
 
 function getAllDbs() {
-  return process.env.DB ? process.env.DB.split(' ') : defaultDbs;
+  return defaultDbs;
 }
 
 const pool = {
