@@ -421,7 +421,7 @@ module.exports = function (knex) {
             knex.on('query-response', onQueryResponse);
             const knexCopy = knex.withUserParams({});
 
-            return knexCopy('accounts')
+            return knexCopy.table('accounts')
                 .select()
                 .on('query-response', onQueryResponse)
                 .then(function () {
