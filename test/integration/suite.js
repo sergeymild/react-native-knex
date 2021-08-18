@@ -12,18 +12,17 @@ module.exports = function (knex) {
       return knex.destroy();
     });
 
-    // require('./schema')(knex);
-    // require('./schema/foreign-keys')(knex);
-    // require('./builder/inserts')(knex);
-    // require('./builder/selects')(knex);
-    // require('./builder/unions')(knex);
-    // require('./builder/joins')(knex);
-    // require('./builder/aggregate')(knex);
-
+    require('./schema')(knex);
+    require('./schema/foreign-keys')(knex);
+    require('./builder/inserts')(knex);
+    require('./builder/selects')(knex);
+    require('./builder/unions')(knex);
+    require('./builder/joins')(knex);
+    require('./builder/aggregate')(knex);
     require('./builder/updates')(knex);
-    // require('./builder/transaction')(knex);
-    // require('./builder/deletes')(knex);
-    // require('./builder/additional')(knex);
+    require('./builder/transaction')(knex);
+    require('./builder/deletes')(knex);
+    require('./builder/additional')(knex);
 
     // describe('knex.destroy', function () {
     //   it('should allow destroying the pool with knex.destroy', async function () {

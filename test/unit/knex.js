@@ -3,7 +3,7 @@ const { inherits } = require('util');
 const {Knex, SQLite3Client} = require('../../knex');
 const QueryBuilder = require('../../lib/query/builder');
 const { expect } = require('chai');
-const sqliteConfig = require('../knexfile').sqlite3;
+const sqliteConfig = require('../knexfile');
 const sqlite3 = require('sqlite3');
 const { noop } = require('lodash');
 
@@ -113,10 +113,6 @@ describe('knex', () => {
 
   describe('transaction', () => {
     it('transaction of a copy with userParams retains userparams', async () => {
-      if (!sqliteConfig) {
-        return this.skip();
-      }
-
       const knex = new Knex(new SQLite3Client(sqliteConfig, sqlite3));
 
       const knexWithParams = knex.withUserParams({ userParam: '451' });
@@ -301,9 +297,6 @@ describe('knex', () => {
     });
 
     it('creating transaction copy with user params should throw an error', async () => {
-      if (!sqliteConfig) {
-        return this.skip();
-      }
 
       const knex = new Knex(new SQLite3Client(sqliteConfig, sqlite3));
 

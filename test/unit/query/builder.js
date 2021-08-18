@@ -49,9 +49,6 @@ function verifySqlResult(dialect, expectedObj, sqlObj) {
       expectedObj[key](sqlObj[key]);
     } else {
       try {
-        console.log(sqlObj)
-        console.log(expectedObj)
-        console.log("===============")
         expect(sqlObj[key]).to.deep.equal(expectedObj[key]);
       } catch (e) {
         e.stack = dialect + ': ' + e.stack;
@@ -357,13 +354,13 @@ describe('QueryBuilder', () => {
           'insert into `table` (`a`, `b`, `c`) values (?, ?, ?), (?, ?, ?), (?, ?, ?)',
         bindings: [
           1,
-          undefined,
-          undefined,
-          undefined,
+          null,
+          null,
+          null,
           2,
-          undefined,
+          null,
           2,
-          undefined,
+          null,
           3,
         ],
       },
@@ -541,7 +538,7 @@ describe('QueryBuilder', () => {
       {
         sqlite3: {
           sql:
-            'with `withClause` as (select `foo` from `users` where `name` = ?) insert into `users` (`email`, `name`) select ? as `email`, ? as `name` union all select ? as `email`, ? as `name`',
+            'with `withClause` as (select `foo` from `users` where `name` = ?) insert into `users` (`email`, `name`) values (?, ?), (?, ?)',
           bindings: ['bob', 'thisMail', 'sam', 'thatMail', 'jack'],
         },
       }
