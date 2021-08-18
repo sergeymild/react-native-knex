@@ -385,6 +385,7 @@ module.exports = function (knex) {
                 queryCount++;
                 expect(response).to.be.an('array');
                 expect(obj).to.be.an('object');
+                expect(obj.__knexUid).to.be.a('string');
                 expect(obj.__knexQueryUid).to.be.a('string');
                 expect(builder).to.be.an('object');
             };
@@ -413,6 +414,7 @@ module.exports = function (knex) {
                 queryCount++;
                 expect(response).to.be.an('array');
                 expect(obj).to.be.an('object');
+                expect(obj.__knexUid).to.be.a('string');
                 expect(obj.__knexQueryUid).to.be.a('string');
                 expect(builder).to.be.an('object');
             };
@@ -444,6 +446,7 @@ module.exports = function (knex) {
             const onQueryErrorKnex = function (error, obj) {
                 queryCountKnex++;
                 expect(obj).to.be.an('object');
+                expect(obj.__knexUid).to.be.a('string');
                 expect(obj.__knexQueryUid).to.be.a('string');
                 expect(error).to.be.an('error');
             };
@@ -451,6 +454,7 @@ module.exports = function (knex) {
             const onQueryErrorBuilder = function (error, obj) {
                 queryCountBuilder++;
                 expect(obj).to.be.an('object');
+                expect(obj.__knexUid).to.be.a('string');
                 expect(obj.__knexQueryUid).to.be.a('string');
                 expect(error).to.be.an('error');
             };
