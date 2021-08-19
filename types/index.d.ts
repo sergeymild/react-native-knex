@@ -1699,9 +1699,7 @@ export declare namespace Knex {
     driverName: string;
     connectionSettings: object;
 
-    acquireRawConnection(): Promise<any>;
     destroyRawConnection(connection: any): Promise<void>;
-    validateConnection(connection: any): Promise<boolean>;
     logger: Logger;
     version?: string;
     valueForUndefined: any;

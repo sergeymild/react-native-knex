@@ -97,26 +97,6 @@ function testquery(chain, valuesToCheck, selectedClients) {
   });
 }
 
-describe('Custom identifier wrapping', () => {
-  const customWrapperConfig = {
-    wrapIdentifier: (value, clientImpl, context) => {
-      let suffix = '_wrapper_was_here';
-      if (context && context.fancy) {
-        suffix = '_fancy_wrapper_was_here';
-      }
-      return clientImpl(value + suffix);
-    },
-  };
-
-  // use driverName as key
-  const clientsWithCustomIdentifierWrapper = {
-    sqlite3: new SQLite3_Client(
-      Object.assign({ client: 'sqlite3' }, customWrapperConfig)
-    ),
-  };
-
-});
-
 describe('QueryBuilder', () => {
   it('less trivial case of object alias syntax', () => {
     testsql(
