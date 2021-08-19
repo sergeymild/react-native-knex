@@ -23,17 +23,6 @@ const deley = async (timeout) => new Promise(resolve => {
   setTimeout(() => resolve(), timeout)
 })
 
-const postProcessResponse = (response) => {
-  if (Array.isArray(response)) {
-    return response.map(mapObject);
-  } else {
-    if (isObject(response)) {
-      return mapObject(response);
-    }
-    return response;
-  }
-};
-
 module.exports = (knex) => {
   describe('Schema', () => {
     describe('errors for unsupported dialects', () => {
@@ -281,25 +270,6 @@ module.exports = (knex) => {
 
             expect(exists).to.equal(true);
           });
-        });
-      });
-
-      describe('using processorss', () => {
-        describe('sqlite only', () => {
-          beforeEach(() => {
-            knex.client.config.postProcessResponse = postProcessResponse;
-            knex.client.config.wrapIdentifier = wrapIdentifier;
-          });
-
-          afterEach(() => {
-            knex.client.config.postProcessResponse = null;
-            knex.client.config.wrapIdentifier = null;
-          });
-
-          it('checks whether a column not exists, resolving with a boolean', () =>
-            knex.schema.hasColumn('accounts', 'firstName').then((exists) => {
-              expect(exists).to.equal(false);
-            }));
         });
       });
     });

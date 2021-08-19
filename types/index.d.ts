@@ -347,8 +347,6 @@ declare class Knex<TRecord extends {} = any, TResult = unknown[]> extends Knex.Q
   client: any;
   fn: Knex.FunctionHelper;
   ref: Knex.RefBuilder;
-  userParams: Record<string, any>;
-  withUserParams(params: Record<string, any>): Knex;
 }
 // interface Knex<TRecord extends {} = any, TResult = unknown[]> extends Knex.QueryInterface<TRecord, TResult>, EventEmitter {
 //   new (client: Knex.Client): Knex
@@ -1660,7 +1658,6 @@ export declare namespace Knex {
     debug?: boolean;
     version?: string;
     connection?: Sqlite3ConnectionConfig;
-    postProcessResponse?: (result: any) => any;
     log?: Logger;
   }
 
@@ -1724,7 +1721,6 @@ export declare namespace Knex {
     query(connection: any, obj: any): any;
     prepBindings(bindings: any): any;
     positionBindings(sql: any): any;
-    postProcessResponse(resp: any): any;
     driver: any;
     acquireConnection(): any;
     releaseConnection(connection: any): any;

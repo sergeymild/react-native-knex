@@ -9,156 +9,6 @@ const delay = require('../../../lib/util/delay');
 
 module.exports = function (knex) {
     describe('Additional', function () {
-        describe('Custom response processing', () => {
-            before('setup custom response handler', () => {
-                knex.client.config.postProcessResponse = (response) => {
-                    response.callCount = response.callCount ? response.callCount + 1 : 1;
-                    return response;
-                };
-            });
-
-            after('restore client configuration', () => {
-                knex.client.config.postProcessResponse = null;
-            });
-
-            it('should process normal response', async () => {
-                await knex.schema.dropTableIfExists('test_table_two')
-                await knex.schema.createTableIfNotExists('test_table_two', (t) => {
-                    t.increments('id')
-                    t.integer('account_id')
-                    t.boolean('status')
-                })
-
-                return knex.table('accounts')
-                    .limit(1)
-                    .then((res) => {
-                        expect(res.callCount).to.equal(1);
-                    });
-            });
-
-            it('should process raw response', () => {
-                return knex.raw('select * from ??', ['accounts']).then((res) => {
-                    expect(res.callCount).to.equal(1);
-                });
-            });
-
-            it('should process response done in transaction', () => {
-                return knex
-                    .transaction((trx) => {
-                        return trx.table('accounts')
-                            .limit(1)
-                            .then((res) => {
-                                expect(res.callCount).to.equal(1);
-                                return res;
-                            });
-                    })
-                    .then((res) => {
-                        expect(res.callCount).to.equal(1);
-                    });
-            });
-        });
-
-        describe('columnInfo with wrapIdentifier and postProcessResponse', () => {
-            before('setup hooks', () => {
-                knex.client.config.postProcessResponse = (response) => {
-                    return _.mapKeys(response, (val, key) => {
-                        return _.camelCase(key);
-                    });
-                };
-
-                knex.client.config.wrapIdentifier = (id, origImpl) => {
-                    return origImpl(_.snakeCase(id));
-                };
-            });
-
-            after('restore client configuration', () => {
-                knex.client.config.postProcessResponse = null;
-                knex.client.config.wrapIdentifier = null;
-            });
-
-            it('should work using camelCased table name', async () => {
-                await knex.schema.createTableIfNotExists('testTableTwo', (t) => {
-                    t.integer('id')
-                    t.string('firstName')
-                    t.string('accountId')
-                    t.string('details')
-                    t.boolean('status')
-                    t.text('jsonData')
-                })
-                return knex.table('testTableTwo')
-                    .columnInfo()
-                    .then((res) => {
-                        expect(Object.keys(res)).to.have.all.members([
-                            'id',
-                            'firstName',
-                            'accountId',
-                            'details',
-                            'status',
-                            'jsonData',
-                        ]);
-                    });
-            });
-
-            it('should work using snake_cased table name', async () => {
-                await knex.schema.dropTableIfExists('test_table_two')
-                await knex.schema.createTableIfNotExists('test_table_two', (t) => {
-                    t.integer('id')
-                    t.string('accountId')
-                    t.string('details')
-                    t.boolean('status')
-                    t.text('jsonData')
-                })
-
-                return knex.table('test_table_two')
-                    .columnInfo()
-                    .then((res) => {
-                        expect(Object.keys(res)).to.have.all.members([
-                            'id',
-                            'accountId',
-                            'details',
-                            'status',
-                            'jsonData',
-                        ]);
-                    });
-            });
-        });
-
-        describe('returning with wrapIdentifier and postProcessResponse` (TODO: fix to work on all possible dialects)', function () {
-            const origHooks = {};
-
-            before('setup custom hooks', () => {
-                origHooks.postProcessResponse = knex.client.config.postProcessResponse;
-                origHooks.wrapIdentifier = knex.client.config.wrapIdentifier;
-
-                // Add `_foo` to each identifier.
-                knex.client.config.postProcessResponse = (res) => {
-                    if (Array.isArray(res)) {
-                        return res.map((it) => {
-                            if (typeof it === 'object') {
-                                return _.mapKeys(it, (value, key) => {
-                                    return key + '_foo';
-                                });
-                            } else {
-                                return it;
-                            }
-                        });
-                    } else {
-                        return res;
-                    }
-                };
-
-                // Remove `_foo` from the end of each identifier.
-                knex.client.config.wrapIdentifier = (id) => {
-                    return id.substring(0, id.length - 4);
-                };
-            });
-
-            after('restore hooks', () => {
-                knex.client.config.postProcessResponse = origHooks.postProcessResponse;
-                knex.client.config.wrapIdentifier = origHooks.wrapIdentifier;
-            });
-        });
-
         it('should truncate a table with truncate', async function () {
             await knex.schema.dropTableIfExists('test_table_two')
             await knex.schema.createTableIfNotExists('test_table_two', (t) => {
@@ -285,8 +135,8 @@ module.exports = function (knex) {
 
 
         it('should allow renaming a column', async function () {
-            await knex.schema.dropTableIfExists('accounts')
-            await knex.schema.createTableIfNotExists('accounts', (t) => {
+            await knex.schema.dropTable('accounts')
+            await knex.schema.createTable('accounts', (t) => {
                 t.increments('id')
                 t.string('first_name')
                 t.string('last_name')
@@ -296,18 +146,17 @@ module.exports = function (knex) {
             const countColumn = 'count(*)';
             let count;
             const inserts = [];
-            _.times(40, function (i) {
+            _.times(10, function (i) {
                 inserts.push({
                     email: 'email' + i,
                     first_name: 'Test',
                     last_name: 'Data',
+                    about: 'some'
                 });
             });
             return knex.table('accounts')
                 .insert(inserts)
-                .then(function () {
-                    return knex.count('*').from('accounts');
-                })
+                .then(() => knex.count('*').from('accounts'))
                 .then(function (resp) {
                     count = resp[0][countColumn];
                     return knex.schema
@@ -403,39 +252,6 @@ module.exports = function (knex) {
                 })
                 .then(function () {
                     knex.removeListener('query-response', onQueryResponse);
-                    expect(queryCount).to.equal(4);
-                });
-        });
-
-        it('Event: preserves listeners on a copy with user params', function () {
-            let queryCount = 0;
-
-            const onQueryResponse = function (response, obj, builder) {
-                queryCount++;
-                expect(response).to.be.an('array');
-                expect(obj).to.be.an('object');
-                expect(obj.__knexUid).to.be.a('string');
-                expect(obj.__knexQueryUid).to.be.a('string');
-                expect(builder).to.be.an('object');
-            };
-            knex.on('query-response', onQueryResponse);
-            const knexCopy = knex.withUserParams({});
-
-            return knexCopy.table('accounts')
-                .select()
-                .on('query-response', onQueryResponse)
-                .then(function () {
-                    return knexCopy.transaction(function (tr) {
-                        return tr.table('accounts')
-                            .select()
-                            .on('query-response', onQueryResponse); //Transactions should emit the event as well
-                    });
-                })
-                .then(function () {
-                    expect(Object.keys(knex._events).length).to.equal(1);
-                    expect(Object.keys(knexCopy._events).length).to.equal(1);
-                    knex.removeListener('query-response', onQueryResponse);
-                    expect(Object.keys(knex._events).length).to.equal(0);
                     expect(queryCount).to.equal(4);
                 });
         });

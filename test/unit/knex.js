@@ -30,103 +30,8 @@ describe('knex', () => {
     });
   });
 
-  // it('copying does not result in duplicate listeners', () => {
-  //   const knex = new Knex(new SQLite3Client({
-  //     connection: ':memory:',
-  //   }, sqlite3));
-  //   const knexWithParams = knex.withUserParams();
-  //   expect(knex.client.listeners('start').length).to.equal(1);
-  //   expect(knex.client.listeners('query').length).to.equal(1);
-  //   expect(knex.client.listeners('query-error').length).to.equal(1);
-  //   expect(knex.client.listeners('query-response').length).to.equal(1);
-  //
-  //   expect(knexWithParams.client.listeners('start').length).to.equal(1);
-  //   expect(knexWithParams.client.listeners('query').length).to.equal(1);
-  //   expect(knexWithParams.client.listeners('query-error').length).to.equal(1);
-  //   expect(knexWithParams.client.listeners('query-response').length).to.equal(
-  //     1
-  //   );
-  //
-  //   return knex.destroy();
-  // });
-
-  it('listeners added to knex directly get copied correctly', () => {
-    const knex = new Knex(new SQLite3Client({
-      connection: ':memory:',
-    }, sqlite3));
-    const onQueryResponse = function (response, obj, builder) {};
-    expect(knex.listeners('query-response').length).to.equal(0);
-    knex.on('query-response', onQueryResponse);
-
-    const knexWithParams = knex.withUserParams();
-
-    expect(knex.listeners('query-response').length).to.equal(1);
-    expect(knexWithParams.listeners('query-response').length).to.equal(1);
-
-    return knex.destroy();
-  });
-
-  it('sets correct postProcessResponse for builders instantiated from clone', () => {
-    const knex = new Knex(new SQLite3Client({
-      connection: ':memory:',
-      postProcessResponse: noop,
-    }, sqlite3));
-
-    const knexWithParams = knex.withUserParams();
-    knexWithParams.client.config.postProcessResponse = null;
-    const builderForTable = knex.table('tableName');
-    const builderWithParamsForTable = knexWithParams('tableName');
-
-    expect(knex.client.config.postProcessResponse).to.equal(noop);
-    expect(knexWithParams.client.config.postProcessResponse).to.equal(null);
-    expect(builderForTable.client.config.postProcessResponse).to.equal(noop);
-    expect(
-      builderWithParamsForTable.client.config.postProcessResponse
-    ).to.equal(null);
-
-    return knex.destroy();
-  });
-
-  it('sets correct postProcessResponse for chained builders', () => {
-    const knex = new Knex(new SQLite3Client({
-      connection: ':memory:',
-      postProcessResponse: noop,
-    }, sqlite3));
-
-    const knexWithParams = knex.withUserParams();
-    knexWithParams.client.config.postProcessResponse = null;
-    const builderForTable = knex.table('tableName').where('1 = 1');
-    const builderWithParamsForTable = knexWithParams('tableName').where(
-      '1 = 1'
-    );
-
-    expect(knex.client.config.postProcessResponse).to.equal(noop);
-    expect(knexWithParams.client.config.postProcessResponse).to.equal(null);
-    expect(builderForTable.client.config.postProcessResponse).to.equal(noop);
-    expect(
-      builderWithParamsForTable.client.config.postProcessResponse
-    ).to.equal(null);
-
-    knex.destroy();
-  });
-
 
   describe('transaction', () => {
-    it('transaction of a copy with userParams retains userparams', async () => {
-      const knex = new Knex(new SQLite3Client(sqliteConfig, sqlite3));
-
-      const knexWithParams = knex.withUserParams({ userParam: '451' });
-
-      await knexWithParams.transaction(async (trx) => {
-        expect(trx.userParams).to.deep.equal({
-          userParam: '451',
-        });
-      });
-
-      knex.destroy();
-    });
-
-
     it('supports direct retrieval of a transaction from provider', async () => {
       const knex = new Knex(new SQLite3Client(sqliteConfig, sqlite3));
       const trxProvider = knex.transactionProvider();
@@ -134,18 +39,18 @@ describe('knex', () => {
 
       let transaction;
       await trxPromise
-        .then((trx) => {
-          transaction = trx;
-          expect(trx.client.transacting).to.equal(true);
-          return knex.transacting(trx).select(knex.raw('1 as result'));
-        })
-        .then((rows) => {
-          expect(rows[0].result).to.equal(1);
-          return transaction.commit();
-        })
-        .then(() => {
-          return transaction.executionPromise;
-        });
+          .then((trx) => {
+            transaction = trx;
+            expect(trx.client.transacting).to.equal(true);
+            return knex.transacting(trx).select(knex.raw('1 as result'));
+          })
+          .then((rows) => {
+            expect(rows[0].result).to.equal(1);
+            return transaction.commit();
+          })
+          .then(() => {
+            return transaction.executionPromise;
+          });
 
       return knex.destroy();
     });
@@ -233,7 +138,7 @@ describe('knex', () => {
       } catch (err) {
         errorWasThrown = true;
         expect(err.message).to.equal(
-          'Transaction rejected with non-error: undefined'
+            'Transaction rejected with non-error: undefined'
         );
       }
       expect(errorWasThrown).to.be.true;
@@ -296,20 +201,6 @@ describe('knex', () => {
       return knex.destroy();
     });
 
-    it('creating transaction copy with user params should throw an error', async () => {
-
-      const knex = new Knex(new SQLite3Client(sqliteConfig, sqlite3));
-
-      await knex.transaction(async (trx) => {
-        expect(() => {
-          trx.withUserParams({ userParam: '451' });
-        }).to.throw(
-          /Cannot set user params on a transaction - it can only inherit params from main knex instance/
-        );
-      });
-
-      return knex.destroy();
-    });
   });
 
   describe('extend query builder', () => {
@@ -379,19 +270,6 @@ describe('knex', () => {
           });
         }
       });
-    });
-
-    it('should have custom method on knex with user params', async () => {
-      Knex.QueryBuilder.extend('customSelect', function (value) {
-        return this.select(this.client.raw(`${value} as value`));
-      });
-
-      const knex = new Knex(new SQLite3Client(sqliteConfig, sqlite3));
-      const knewWithParams = knex.withUserParams({ foo: 'bar' });
-      const result = await knewWithParams.customSelect(42);
-      expect(result[0].value).to.equal(42);
-
-      return knex.destroy();
     });
 
     it('should throw exception when extending existing method', () => {
