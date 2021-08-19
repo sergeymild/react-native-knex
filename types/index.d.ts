@@ -38,11 +38,6 @@ type AugmentParams<TTarget, TParams> = TParams extends {}
     : {} & TTarget & TParams
   : TTarget;
 
-// Check if provided keys (expressed as a single or union type) are members of TBase
-type AreKeysOf<TBase, TKeys> = Boxed<TKeys> extends Boxed<keyof TBase>
-  ? true
-  : false;
-
 // https://stackoverflow.com/a/50375286/476712
 type UnionToIntersection<U> = (U extends any
   ? (k: U) => void
@@ -281,15 +276,6 @@ type AggregationQueryResult<TResult, TIntersectProps2> = ArrayIfAlready<
       : TIntersectProps2
 >;
 
-// Convenience alias and associated companion namespace for working
-// with DeferredSelection having TSingle=true.
-//
-// When TSingle=true in DeferredSelection, then we are effectively
-// deferring an index access operation (TBase[TKey]) over a potentially
-// unknown initial type of TBase and potentially never initial type of TKey
-
-type DeferredIndex<TBase, TKey extends string> = DeferredKeySelection<TBase, TKey, false, {}, true>;
-
 declare namespace DeferredIndex {
   type Augment<
     T,
@@ -307,9 +293,6 @@ declare namespace DeferredIndex {
 type ResolveResult<S> = DeferredKeySelection.Resolve<S>;
 
 // # Type-aliases for common type combinations
-
-type Callback = Function;
-type Client = Function;
 
 type Dict<T = any> = { [k: string]: T; };
 
@@ -348,20 +331,6 @@ declare class Knex<TRecord extends {} = any, TResult = unknown[]> extends Knex.Q
   fn: Knex.FunctionHelper;
   ref: Knex.RefBuilder;
 }
-// interface Knex<TRecord extends {} = any, TResult = unknown[]> extends Knex.QueryInterface<TRecord, TResult>, EventEmitter {
-//   new (client: Knex.Client): Knex
-//   // <TTable extends Knex.TableNames>(tableName: TTable, options?: TableOptions): Knex.QueryBuilder<Knex.TableType<TTable>, DeferredKeySelection<Knex.ResolveTableType<Knex.TableType<TTable>>, never>[]>;
-//   // <TRecord2 = TRecord, TResult2 = DeferredKeySelection<TRecord2, never>[]>(tableName?: Knex.TableDescriptor | Knex.AliasDict, options?: TableOptions): Knex.QueryBuilder<TRecord2, TResult2>;
-//   table: <TTable extends Knex.TableNames>(tableName: TTable, options?: TableOptions) => Knex.QueryBuilder<Knex.TableType<TTable>, DeferredKeySelection<Knex.ResolveTableType<Knex.TableType<TTable>>, never>[]>
-//   VERSION: string;
-//   __knex__: string;
-//
-//
-// }
-
-// declare function Knex<TRecord extends {} = any, TResult = unknown[]>(
-//   config: Knex.Client
-// ): Knex<TRecord, TResult>;
 
 export declare namespace Knex {
   //
@@ -442,20 +411,12 @@ export declare namespace Knex {
   interface QueryInterface<TRecord extends {} = any, TResult = any> {
     select: Select<TRecord, TResult>;
     as: As<TRecord, TResult>;
-    columns: Select<TRecord, TResult>;
-    column: Select<TRecord, TResult>;
-    from: Table<TRecord, TResult>;
-    into: Table<TRecord, TResult>;
     table: Table<TRecord, TResult>;
     distinct: Distinct<TRecord, TResult>;
-    distinctOn: DistinctOn<TRecord, TResult>;
 
     // Joins
     join: Join<TRecord, TResult>;
-    innerJoin: Join<TRecord, TResult>;
     leftJoin: Join<TRecord, TResult>;
-    leftOuterJoin: Join<TRecord, TResult>;
-    outerJoin: Join<TRecord, TResult>;
     crossJoin: Join<TRecord, TResult>;
 
     // Withs
@@ -532,11 +493,6 @@ export declare namespace Knex {
         ? DeferredKeySelection<TBase, never>[]
         : TResult
     >;
-    clearWhere(): QueryBuilder<TRecord, TResult>;
-    clearGroup(): QueryBuilder<TRecord, TResult>;
-    clearOrder(): QueryBuilder<TRecord, TResult>;
-    clearHaving(): QueryBuilder<TRecord, TResult>;
-    clearCounters(): QueryBuilder<TRecord, TResult>;
     clear(statement: ClearStatements): QueryBuilder<TRecord, TResult>;
 
     // Paging
@@ -623,10 +579,6 @@ export declare namespace Knex {
         : DbRecordArr<TRecord> | ReadonlyArray<DbRecordArr<TRecord>>
     ): QueryBuilder<TRecord, TResult2>;
 
-    modify<TRecord2 extends {} = any, TResult2 extends {} = any>(
-      callback: QueryCallbackWithArgs<TRecord, any>,
-      ...args: any[]
-    ): QueryBuilder<TRecord2, TResult2>;
     update<
       K1 extends StrKey<ResolveTableType<TRecord, 'update'>>,
       K2 extends StrKey<ResolveTableType<TRecord>>,
@@ -1417,19 +1369,9 @@ export declare namespace Knex {
     // TODO: Promise?
     columnInfo(column?: keyof TRecord): Promise<ColumnInfo>;
 
-    forUpdate(...tableNames: string[]): QueryBuilder<TRecord, TResult>;
-    forUpdate(tableNames: readonly string[]): QueryBuilder<TRecord, TResult>;
-
-    forShare(...tableNames: string[]): QueryBuilder<TRecord, TResult>;
-    forShare(tableNames: readonly string[]): QueryBuilder<TRecord, TResult>;
-
-    skipLocked(): QueryBuilder<TRecord, TResult>;
-    noWait(): QueryBuilder<TRecord, TResult>;
-
     toSQL(): Sql;
 
     on(event: string, callback: Function): QueryBuilder<TRecord, TResult>;
-
     clone(): QueryBuilder<TRecord, TResult>;
     timeout(ms: number, options?: {cancel?: boolean}): QueryBuilder<TRecord, TResult>;
   }
