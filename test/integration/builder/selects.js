@@ -262,24 +262,6 @@ module.exports = function (knex) {
             ]);
         });
 
-        it('supports "distinct on"', async function () {
-            const builder = knex.table('accounts')
-                .select('email', 'logins')
-                .distinctOn('id')
-                .orderBy('id');
-
-            let error;
-            try {
-                await builder;
-            } catch (e) {
-                error = e;
-            }
-            expect(error.message).to.eql(
-                '.distinctOn() is currently only supported on PostgreSQL',
-            );
-
-        });
-
         it('does "orWhere" cases', function () {
             return knex.table('accounts')
                 .where('id', 1)

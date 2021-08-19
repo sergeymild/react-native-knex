@@ -337,14 +337,14 @@ module.exports = function (knex) {
             });
             it('should capture stack trace on raw query', () => {
                 return knex.raw('select * from some_nonexisten_table').catch((err) => {
-                    expect(err.stack.split('\n')[1]).to.equal('SQLITE_ERROR: no such table: some_nonexisten_table'); // the index 2 might need adjustment if the code is refactored
+                    expect(err.message.split('\n')[1]).to.equal('SQLITE_ERROR: no such table: some_nonexisten_table'); // the index 2 might need adjustment if the code is refactored
                 });
             });
             it('should capture stack trace on schema builder', () => {
                 return knex.schema
                     .renameTable('some_nonexisten_table', 'whatever')
                     .catch((err) => {
-                        expect(err.stack.split('\n')[1]).to.equal('SQLITE_ERROR: no such table: some_nonexisten_table'); // the index 1 might need adjustment if the code is refactored
+                        expect(err.message.split('\n')[1]).to.equal('SQLITE_ERROR: no such table: some_nonexisten_table'); // the index 1 might need adjustment if the code is refactored
                     });
             });
         });
