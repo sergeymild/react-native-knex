@@ -316,8 +316,8 @@ module.exports = function (knex) {
 
         it('supports cross join without arguments', function () {
             return knex
+                .table('accounts')
                 .select('account_id')
-                .from('accounts')
                 .crossJoin('test_table_two')
                 .orderBy('account_id')
                 .testSql(function (tester) {

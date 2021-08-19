@@ -20,10 +20,10 @@ module.exports = function (knex) {
 
   test('transaction', async function (t) {
     await knex.transaction((trx) =>
-      trx.insert({ id: 1, name: 'A' }).into('test_table')
+      trx.table('test_table').insert({ id: 1, name: 'A' })
     );
 
-    const results = await knex.select('*').from('test_table');
+    const results = await knex.table('test_table').select('*');
 
     t.equal(results.length, 1, 'One row inserted');
   });
@@ -36,8 +36,8 @@ module.exports = function (knex) {
       await knex
         .transaction(function (trx) {
           return trx
+              .table('test_table')
             .insert({ id: 1, name: 'A' })
-            .into('test_table')
             .then(function () {
               throw testError;
             });
@@ -64,7 +64,7 @@ module.exports = function (knex) {
       );
       t.equal(trxRejected, true, 'Transaction promise rejected');
 
-      const results = await knex.select('*').from('test_table');
+      const results = await knex.table('test_table').select('*');
       t.equal(results.length, 0, 'No rows inserted');
     }
   });
@@ -111,8 +111,8 @@ module.exports = function (knex) {
       await knex
         .transaction(function (trx1) {
           return trx1
+              .table('test_table')
             .insert({ id: 1, name: 'A' })
-            .into('test_table')
             .then(function () {
               // Nested transaction (savepoint)
               return trx1
@@ -166,7 +166,7 @@ module.exports = function (knex) {
       );
       t.equal(trx2Rejected, true, 'Nested transaction promise rejected');
 
-      const results = await knex.select('*').from('test_table');
+      const results = await knex.table('test_table').select('*');
       t.equal(results.length, 1, 'One row inserted');
     }
   });
@@ -180,8 +180,8 @@ module.exports = function (knex) {
       await knex
         .transaction(function (trx1) {
           return trx1
+              .table('test_table')
             .insert({ id: 1, name: 'A' })
-            .into('test_table')
             .then(function () {
               // Nested transaction (savepoint)
               return trx1
@@ -224,7 +224,7 @@ module.exports = function (knex) {
         'Expected number of nested transaction SQL queries executed'
       );
       t.equal(trx2Rejected, true, 'Nested transaction promise rejected');
-      const results = await knex.select('*').from('test_table');
+      const results = await knex.table('test_table').select('*');
       t.equal(results.length, 1, 'One row inserted');
     }
   });
@@ -236,10 +236,10 @@ module.exports = function (knex) {
         return trx
           .transaction(function (trx1) {
             return trx1
+                .table('test_table')
               .insert({ id: 1, name: 'A' })
-              .into('test_table')
               .then(function () {
-                return trx1.insert({ id: 2, name: 'B' }).into('test_table');
+                return trx1.table('test_table').insert({ id: 2, name: 'B' });
               });
           })
           .then(function () {
@@ -269,11 +269,11 @@ module.exports = function (knex) {
       await knex.transaction(function (trx) {
         return trx
           .transaction(function (trx1) {
-            return trx1.insert({ id: 1, name: 'A' }).into('test_table');
+            return trx1.table('test_table').insert({ id: 1, name: 'A' });
           })
           .then(function () {
             return trx.transaction(function (trx2) {
-              return trx2.insert({ id: 2, name: 'B' }).into('test_table');
+              return trx2.table('test_table').insert({ id: 2, name: 'B' });
             });
           });
       });
@@ -290,8 +290,8 @@ module.exports = function (knex) {
         return trx
           .transaction(function (trx1) {
             return trx1
+                .table('test_table')
               .insert({ id: 1, name: 'A' })
-              .into('test_table')
               .then(function () {
                 throw new Error('test rollback');
               });
@@ -323,7 +323,7 @@ module.exports = function (knex) {
       await knex.transaction(function (trx) {
         return trx
           .transaction(async function (trx1) {
-            await trx1.insert({ id: 1, name: 'A' }).into('test_table');
+            await trx1.table('test_table').insert({ id: 1, name: 'A' });
 
             throw new Error('test rollback');
           })
@@ -335,11 +335,11 @@ module.exports = function (knex) {
             );
             return trx.transaction(function (trx2) {
               return trx2
+                  .table('test_table')
                 .insert([
                   { id: 2, name: 'B' },
                   { id: 3, name: 'C' },
-                ])
-                .into('test_table');
+                ]);
             });
           });
       });
@@ -393,7 +393,7 @@ module.exports = function (knex) {
               'First sibling transaction rolled back before starting the second one'
             );
             return trx.transaction(function (trx2) {
-              return trx2.insert([{ id: 1, name: 'A' }]).into('test_table');
+              return trx2.table('test_table').insert([{ id: 1, name: 'A' }]);
             });
           });
       });
@@ -409,17 +409,17 @@ module.exports = function (knex) {
       await knex.transaction(function (trx) {
         return trx
           .transaction(function (trx1) {
-            return trx1.insert({ id: 1, name: 'A' }).into('test_table');
+            return trx1.table('test_table').insert({ id: 1, name: 'A' });
           })
           .then(function () {
             return trx
               .transaction(function (trx2) {
                 return trx2
+                    .table('test_table')
                   .insert([
                     { id: 2, name: 'B' },
                     { id: 3, name: 'C' },
                   ])
-                  .into('test_table')
                   .then(function () {
                     secondTransactionCompleted = true;
                     throw new Error('test rollback');
@@ -445,7 +445,7 @@ module.exports = function (knex) {
       await knex.transaction(function (trx) {
         return trx
           .transaction(function (trx1) {
-            return trx1.insert({ id: 1, name: 'A' }).into('test_table');
+            return trx1.table('test_table').insert({ id: 1, name: 'A' });
           })
           .then(function () {
             return trx
@@ -538,8 +538,8 @@ module.exports = function (knex) {
       await knex
         .transaction(function (trx1) {
           return trx1
+              .table('test_table')
             .insert({ id: 1, name: 'A' })
-            .into('test_table')
             .then(function () {
               // Nested transaction (savepoint)
               return trx1
@@ -582,7 +582,7 @@ module.exports = function (knex) {
         'Expected number of nested transaction SQL queries executed'
       );
       t.equal(trx2Rejected, true, 'Nested transaction promise rejected');
-      const results = await knex.select('*').from('test_table');
+      const results = await knex.table('test_table').select('*'));
       t.equal(results.length, 1, 'One row inserted');
     }
   });

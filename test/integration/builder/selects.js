@@ -53,9 +53,9 @@ module.exports = function (knex) {
             await knex.table('accounts').insert({})
             await knex.table('accounts').insert({})
             return knex
+                .table('accounts')
                 .pluck('id')
                 .orderBy('id')
-                .from('accounts')
                 .testSql(function (tester) {
                     tester(
                         'sqlite3',
@@ -68,8 +68,8 @@ module.exports = function (knex) {
 
         it('can pluck a qualified column name, #1619', function () {
             return knex
+                .table('accounts')
                 .pluck('accounts.id')
-                .from('accounts')
                 .orderBy('accounts.id')
                 .testSql(function (tester) {
                     tester(
@@ -83,9 +83,9 @@ module.exports = function (knex) {
 
         it('starts selecting at offset', function () {
             return knex
+                .table('accounts')
                 .pluck('id')
                 .orderBy('id')
-                .from('accounts')
                 .offset(2)
                 .testSql(function (tester) {
                     tester(
@@ -99,9 +99,9 @@ module.exports = function (knex) {
 
         it('returns a single entry with first', function () {
             return knex
+                .table('accounts')
                 .first('id', 'first_name')
                 .orderBy('id')
-                .from('accounts')
                 .testSql(function (tester) {
                     tester(
                         'sqlite3',
@@ -273,7 +273,7 @@ module.exports = function (knex) {
             return knex.table('accounts')
                 .select('first_name', 'last_name', 'about')
                 .where('id', 1)
-                .andWhere('email', 'test@example.com');
+                .where('email', 'test@example.com');
         });
 
         it('takes a function to wrap nested where statements', function () {
@@ -345,7 +345,7 @@ module.exports = function (knex) {
         it('handles "where exists"', async function () {
             return await knex.table('accounts')
                 .whereExists(function () {
-                    this.select('id').from('test_table_two').where({id: 1});
+                    this.table('test_table_two').select('id').where({id: 1});
                 })
                 .select()
         });
@@ -366,8 +366,7 @@ module.exports = function (knex) {
                 // special case for oracle
                 return knex.table('accounts')
                     .whereExists(function () {
-                        this.select(knex.raw(1))
-                            .from('test_table_two')
+                        this.table('test_table_two').select(knex.raw(1))
                             .where(
                                 knex.raw('"test_table_two"."account_id" = "accounts"."id"')
                             );
@@ -376,8 +375,7 @@ module.exports = function (knex) {
             } else {
                 return knex.table('accounts')
                     .whereExists(function () {
-                        this.select(knex.raw(1))
-                            .from('test_table_two')
+                        this.table('test_table_two').select(knex.raw(1))
                             .where(knex.raw('test_table_two.account_id = accounts.id'));
                     })
                     .select();
@@ -387,7 +385,7 @@ module.exports = function (knex) {
         it('does sub-selects', function () {
             return knex.table('accounts')
                 .whereIn('id', function () {
-                    this.select('account_id').from('test_table_two').where('status', 1);
+                    this.table('test_table_two').select('account_id').where('status', 1);
                 })
                 .select('first_name', 'last_name');
         });

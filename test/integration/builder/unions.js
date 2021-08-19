@@ -23,7 +23,7 @@ module.exports = function (knex) {
         .select('*')
         .where('id', '=', 1)
         .union(function () {
-          this.select('*').from('accounts').where('id', 2);
+          this.table('accounts').select('*').where('id', 2);
         });
     });
 
@@ -33,10 +33,10 @@ module.exports = function (knex) {
         .where('id', '=', 1)
         .union([
           function () {
-            this.select('*').from('accounts').where('id', 2);
+            this.table('accounts').select('*').where('id', 2);
           },
           function () {
-            this.select('*').from('accounts').where('id', 3);
+            this.table('accounts').select('*').where('id', 3);
           },
         ]);
     });
@@ -47,10 +47,10 @@ module.exports = function (knex) {
         .where('id', '=', 1)
         .union(
           function () {
-            this.select('*').from('accounts').where('id', 2);
+            this.table('accounts').select('*').where('id', 2);
           },
           function () {
-            this.select('*').from('accounts').where('id', 3);
+            this.table('accounts').select('*').where('id', 3);
           }
         );
     });
@@ -60,8 +60,8 @@ module.exports = function (knex) {
         .select('*')
         .where('id', '=', 1)
         .union([
-          knex.select('*').from('accounts').where('id', 2),
-          knex.select('*').from('accounts').where('id', 3),
+          knex.table('accounts').select('*').where('id', 2),
+          knex.table('accounts').select('*').where('id', 3),
         ]);
     });
 
@@ -70,8 +70,8 @@ module.exports = function (knex) {
         .select('*')
         .where('id', '=', 1)
         .union(
-          knex.select('*').from('accounts').where('id', 2),
-          knex.select('*').from('accounts').where('id', 3)
+          knex.table('accounts').select('*').where('id', 2),
+          knex.table('accounts').select('*').where('id', 3)
         );
     });
 
@@ -164,7 +164,7 @@ module.exports = function (knex) {
           .select('*')
           .where('test_col_1', '=', 1)
           .intersect(function () {
-            this.select('*').from('intersect_test').where('test_col_2', 2);
+            this.table('intersect_test').select('*').where('test_col_2', 2);
           })
           .then(function (result) {
             expect(result.length).to.equal(3);
@@ -178,10 +178,10 @@ module.exports = function (knex) {
           .where('test_col_1', '=', 1)
           .intersect([
             function () {
-              this.select('*').from('intersect_test').where('test_col_2', 2);
+              this.table('intersect_test').select('*').where('test_col_2', 2);
             },
             function () {
-              this.select('*').from('intersect_test').where('test_col_3', 1);
+              this.table('intersect_test').select('*').where('test_col_3', 1);
             },
           ])
           .then(function (result) {
@@ -196,10 +196,10 @@ module.exports = function (knex) {
           .where('test_col_1', '=', 1)
           .intersect(
             function () {
-              this.select('*').from('intersect_test').where('test_col_2', 2);
+              this.table('intersect_test').select('*').where('test_col_2', 2);
             },
             function () {
-              this.select('*').from('intersect_test').where('test_col_3', 1);
+              this.table('intersect_test').select('*').where('test_col_3', 1);
             }
           )
           .then(function (result) {
@@ -213,8 +213,8 @@ module.exports = function (knex) {
           .select('*')
           .where('test_col_1', '=', 1)
           .intersect([
-            knex.select('*').from('intersect_test').where('test_col_2', 2),
-            knex.select('*').from('intersect_test').where('test_col_3', 1),
+            knex.table('intersect_test').select('*').where('test_col_2', 2),
+            knex.table('intersect_test').select('*').where('test_col_3', 1),
           ])
           .then(function (result) {
             expect(result.length).to.equal(2);
@@ -227,8 +227,8 @@ module.exports = function (knex) {
           .select('*')
           .where('test_col_1', '=', 1)
           .intersect(
-            knex.select('*').from('intersect_test').where('test_col_2', 2),
-            knex.select('*').from('intersect_test').where('test_col_3', 1)
+            knex.table('intersect_test').select('*').where('test_col_2', 2),
+            knex.table('intersect_test').select('*').where('test_col_3', 1)
           )
           .then(function (result) {
             expect(result.length).to.equal(2);

@@ -467,14 +467,11 @@ export declare namespace Knex {
 
     // Wheres
     where: Where<TRecord, TResult>;
-    andWhere: Where<TRecord, TResult>;
     orWhere: Where<TRecord, TResult>;
     whereNot: Where<TRecord, TResult>;
-    andWhereNot: Where<TRecord, TResult>;
     orWhereNot: Where<TRecord, TResult>;
     whereRaw: WhereRaw<TRecord, TResult>;
     orWhereRaw: WhereRaw<TRecord, TResult>;
-    andWhereRaw: WhereRaw<TRecord, TResult>;
     whereWrapped: WhereWrapped<TRecord, TResult>;
     havingWrapped: WhereWrapped<TRecord, TResult>;
     whereExists: WhereExists<TRecord, TResult>;
@@ -491,10 +488,8 @@ export declare namespace Knex {
     orWhereNotNull: WhereNull<TRecord, TResult>;
     whereBetween: WhereBetween<TRecord, TResult>;
     orWhereBetween: WhereBetween<TRecord, TResult>;
-    andWhereBetween: WhereBetween<TRecord, TResult>;
     whereNotBetween: WhereBetween<TRecord, TResult>;
     orWhereNotBetween: WhereBetween<TRecord, TResult>;
-    andWhereNotBetween: WhereBetween<TRecord, TResult>;
 
     // Group by
     groupBy: GroupBy<TRecord, TResult>;
@@ -513,7 +508,6 @@ export declare namespace Knex {
 
     // Having
     having: Having<TRecord, TResult>;
-    andHaving: Having<TRecord, TResult>;
     havingRaw: RawQueryBuilder<TRecord, TResult>;
     orHaving: Having<TRecord, TResult>;
     orHavingRaw: RawQueryBuilder<TRecord, TResult>;

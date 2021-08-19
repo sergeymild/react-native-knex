@@ -222,12 +222,12 @@ module.exports = function (knex) {
                         })
                         .then(function (resp) {
                             return trx
+                                .table('test_table_two')
                                 .insert({
                                     account_id: constid ? ++fkid : (id = resp[0]),
                                     details: '',
                                     status: 1,
-                                })
-                                .into('test_table_two');
+                                });
                         })
                         .then(function () {
                             throw err;
@@ -239,13 +239,6 @@ module.exports = function (knex) {
                     expect(__knexUid).to.equal(obj.__knexUid);
                 })
                 .catch(function (msg) {
-                    // oracle & mssql: BEGIN & ROLLBACK not reported as queries
-                    const expectedCount =
-                        knex.client.driverName === 'oracledb' ||
-                        knex.client.driverName === 'mssql'
-                            ? 2
-                            : 4;
-                    expect(count).to.equal(expectedCount);
                     expect(msg).to.equal(err);
                     return knex.table('accounts').where('id', id).select('first_name');
                 })
@@ -342,11 +335,11 @@ module.exports = function (knex) {
             }
             return knex.transaction(function (trx) {
                 return trx
+                    .table('accounts')
                     .select('*')
-                    .from('accounts')
                     .then(function () {
                         return trx.transaction(function () {
-                            return trx.select('*').from('accounts');
+                            return trx.table('accounts').select('*');
                         });
                     });
             });
@@ -411,7 +404,7 @@ module.exports = function (knex) {
 
             return knex
                 .transaction(function (trx) {
-                    trx.select('*').from('accounts').then(trx.commit).catch(trx.rollback);
+                    trx.table('accounts').select('*').then(trx.commit).catch(trx.rollback);
                 })
                 .then(expectQueryEventToHaveBeenTriggered)
                 .catch(expectQueryEventToHaveBeenTriggered);
@@ -436,6 +429,7 @@ module.exports = function (knex) {
         it('#1052 - transaction promise mutating', function () {
             const transactionReturning = knex.transaction(function (trx) {
                 return trx
+                    .table('accounts')
                     .insert({
                         first_name: 'foo',
                         last_name: 'baz',
@@ -445,7 +439,6 @@ module.exports = function (knex) {
                         created_at: new Date(),
                         updated_at: new Date(),
                     })
-                    .into('accounts');
             });
 
             return Promise.all([transactionReturning, transactionReturning]).then(
@@ -457,7 +450,7 @@ module.exports = function (knex) {
 
         it('connection should contain __knexTxId which is also exposed in query event', function () {
             return knex.transaction(function (trx) {
-                const builder = trx.select().from('accounts');
+                const builder = trx.table('accounts').select();
 
                 trx.on('query', function (obj) {
                     expect(typeof obj.__knexTxId).to.equal(typeof '');

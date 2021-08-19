@@ -16,7 +16,7 @@ module.exports = function (knex) {
 
             return knex.table('accounts')
                 .where('id', 1)
-                .del()
+                .delete()
                 .testSql(function (tester) {
                     tester('sqlite3', 'delete from `accounts` where `id` = ?', [1], 1);
                 });
@@ -25,7 +25,7 @@ module.exports = function (knex) {
         it('should allow returning for deletes in sqlite3', async function () {
             return knex.table('accounts')
                 .where('id', 2)
-                .del('*')
+                .delete()
                 .testSql(function (tester) {
                     tester('sqlite3', 'delete from `accounts` where `id` = ?', [2], 1);
                 });

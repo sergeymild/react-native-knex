@@ -156,7 +156,7 @@ module.exports = function (knex) {
             });
             return knex.table('accounts')
                 .insert(inserts)
-                .then(() => knex.count('*').from('accounts'))
+                .then(() => knex.table('accounts').count('*'))
                 .then(function (resp) {
                     count = resp[0][countColumn];
                     return knex.schema
@@ -168,7 +168,7 @@ module.exports = function (knex) {
                         });
                 })
                 .then(function () {
-                    return knex.count('*').from('accounts');
+                    return knex.table('accounts').count('*');
                 })
                 .then(function (resp) {
                     expect(resp[0][countColumn]).to.equal(count);
@@ -182,7 +182,7 @@ module.exports = function (knex) {
                     });
                 })
                 .then(function () {
-                    return knex.count('*').from('accounts');
+                    return knex.table('accounts').count('*');
                 })
                 .then(function (resp) {
                     expect(resp[0][countColumn]).to.equal(count);
@@ -193,8 +193,8 @@ module.exports = function (knex) {
             const countColumn = 'count(*)';
             let count;
             return knex
+                .table('accounts')
                 .count('*')
-                .from('accounts')
                 .then(function (resp) {
                     count = resp[0][countColumn];
                 })
@@ -208,7 +208,7 @@ module.exports = function (knex) {
                         });
                 })
                 .then(function () {
-                    return knex.select('*').from('accounts').first();
+                    return knex.table('accounts').select('*').first();
                 })
                 .then(function (resp) {
                     expect(_.keys(resp).sort()).to.eql([
@@ -219,7 +219,7 @@ module.exports = function (knex) {
                     ]);
                 })
                 .then(function () {
-                    return knex.count('*').from('accounts');
+                    return knex.table('accounts').count('*');
                 })
                 .then(function (resp) {
                     expect(resp[0][countColumn]).to.equal(count);
