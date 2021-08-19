@@ -418,8 +418,8 @@ module.exports = function (knex) {
             ]);
             const expected1 = [[1, 2, 3]];
             const expected2 = [1, 2, ['a', 'b', 'c']];
-            expect(raw.toSQL().bindings).to.eql(knex.client.prepBindings(expected1));
-            expect(raw2.toSQL().bindings).to.eql(knex.client.prepBindings(expected2));
+            expect(raw.toSQL().bindings).to.eql(expected1);
+            expect(raw2.toSQL().bindings).to.eql(expected2);
             //Also expect raw's bindings to not have been modified by calling .toSQL() (preserving original bindings)
             expect(raw.bindings).to.eql(expected1);
             expect(raw2.bindings).to.eql(expected2);

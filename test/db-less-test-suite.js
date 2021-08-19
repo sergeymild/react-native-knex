@@ -16,7 +16,6 @@ describe('Query Building Tests', function () {
   require('./unit/query/formatter');
   require('./unit/query/string');
   require('./unit/schema/sqlite3');
-  require('./unit/interface'); //ToDo Uncomment after fixed
   require('./unit/knex');
 
   require('./integration-test-suite')

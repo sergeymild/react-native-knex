@@ -351,12 +351,8 @@ module.exports = function (knex) {
                         'select `a1`.`email`, `a2`.`email` from `accounts` as `a1` left join `accounts` as `a2` on `a1`.`email` <> `a2`.`email` where a1.id = 1 order by `a2`.`id` asc limit ?',
                         [2],
                         [
-                            {
-                                email: 'test2@example.com',
-                            },
-                            {
-                                email: 'test3@example.com',
-                            },
+                            {email: 'test2@example.com'},
+                            {email: 'test3@example.com'},
                         ]
                     );
                 });
