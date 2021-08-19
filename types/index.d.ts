@@ -452,7 +452,6 @@ export declare namespace Knex {
 
     // Joins
     join: Join<TRecord, TResult>;
-    joinRaw: JoinRaw<TRecord, TResult>;
     innerJoin: Join<TRecord, TResult>;
     leftJoin: Join<TRecord, TResult>;
     leftOuterJoin: Join<TRecord, TResult>;
@@ -1046,13 +1045,6 @@ export declare namespace Knex {
       column: string | readonly string[] | Raw | { [key: string]: string | Raw }
     ): JoinClause;
     type(type: string): JoinClause;
-  }
-
-  interface JoinRaw<TRecord = any, TResult = unknown[]> {
-    (tableName: string, binding?: Value | ValueDict): QueryBuilder<
-      TRecord,
-      TResult
-    >;
   }
 
   interface With<TRecord = any, TResult = unknown[]>

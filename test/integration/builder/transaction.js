@@ -5,7 +5,6 @@ const {expect} = require('chai');
 const Knex = require('../../../knex');
 const _ = require('lodash');
 const sinon = require('sinon');
-const {KnexTimeoutError} = require('../../../lib/util/timeout');
 const delay = require('../../../lib/util/delay');
 
 module.exports = function (knex) {

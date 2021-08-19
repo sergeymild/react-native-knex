@@ -214,36 +214,6 @@ describe('knex', () => {
       delete QueryBuilder.prototype.customSelect;
     });
 
-    it('should extend default queryBuilder', (done) => {
-      Knex.QueryBuilder.extend('customSelect', function (value) {
-        return this.select(this.client.raw(`${value} as value`));
-      });
-
-      const knex = new Knex(new SQLite3Client(sqliteConfig, sqlite3));
-      knex
-        .connection(connection)
-        .customSelect(42)
-        .then((result) => {
-          expect(result[0].value).to.equal(42);
-          done();
-        });
-    });
-
-    it('should have custom method with transaction', async () => {
-      Knex.QueryBuilder.extend('customSelect', function (value) {
-        return this.select(this.client.raw(`${value} as value`));
-      });
-
-      const knex = new Knex(new SQLite3Client(sqliteConfig, sqlite3));
-      const trx = await knex.transaction();
-
-      const result = await trx.customSelect(42);
-      expect(result[0].value).to.equal(42);
-
-      trx.commit();
-      return knex.destroy();
-    });
-
     context('const trx = knex.transaction(cb)', function () {
       context('and cb returns a Promise', function () {
         if (Promise.prototype.finally) {
@@ -270,12 +240,6 @@ describe('knex', () => {
           });
         }
       });
-    });
-
-    it('should throw exception when extending existing method', () => {
-      expect(() =>
-        Knex.QueryBuilder.extend('select', function (value) {})
-      ).to.throw(`Can't extend QueryBuilder with existing method ('select')`);
     });
 
     // TODO: Consider moving these somewhere that tests the
