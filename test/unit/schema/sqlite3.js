@@ -454,7 +454,7 @@ describe('SQLite SchemaBuilder', function () {
     tableSql = client
       .schemaBuilder()
       .table('users', function (table) {
-        table.float('foo', 5, 2);
+        table.real('foo', 5, 2);
       })
       .toSQL();
 
@@ -466,7 +466,7 @@ describe('SQLite SchemaBuilder', function () {
     tableSql = client
       .schemaBuilder()
       .table('users', function (table) {
-        table.double('foo', 15, 8);
+        table.real('foo', 15, 8);
       })
       .toSQL();
 
@@ -478,7 +478,7 @@ describe('SQLite SchemaBuilder', function () {
     tableSql = client
       .schemaBuilder()
       .table('users', function (table) {
-        table.decimal('foo', 5, 2);
+        table.real('foo', 5, 2);
       })
       .toSQL();
 
@@ -490,7 +490,7 @@ describe('SQLite SchemaBuilder', function () {
     tableSql = client
       .schemaBuilder()
       .table('users', function (table) {
-        table.decimal('foo', null);
+        table.real('foo', null);
       })
       .toSQL();
 
