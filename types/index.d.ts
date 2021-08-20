@@ -1471,22 +1471,12 @@ export declare namespace Knex {
     integer(columnName: string, length?: number): ColumnBuilder;
     text(columnName: string, textType?: string): ColumnBuilder;
     string(columnName: string, length?: number): ColumnBuilder;
-    float(
+    real(
       columnName: string,
       precision?: number,
       scale?: number
     ): ColumnBuilder;
-    double(
-      columnName: string,
-      precision?: number,
-      scale?: number
-    ): ColumnBuilder;
-    decimal(
-      columnName: string,
-      precision?: number | null,
-      scale?: number
-    ): ColumnBuilder;
-    boolean(columnName: string): ColumnBuilder;
+    bool(columnName: string): ColumnBuilder;
     date(columnName: string): ColumnBuilder;
     dateTime(columnName: string, options?: Readonly<{useTz?: boolean, precision?: number}>): ColumnBuilder;
     time(columnName: string): ColumnBuilder;
@@ -1498,11 +1488,6 @@ export declare namespace Knex {
       makeDefaultNow?: boolean
     ): ColumnBuilder;
     binary(columnName: string, length?: number): ColumnBuilder;
-    enum(
-      columnName: string,
-      values: readonly Value[],
-      options?: EnumOptions
-    ): ColumnBuilder;
     enu(
       columnName: string,
       values: readonly Value[],
@@ -1510,7 +1495,6 @@ export declare namespace Knex {
     ): ColumnBuilder;
     json(columnName: string): ColumnBuilder;
     uuid(columnName: string): ColumnBuilder;
-    comment(val: string): TableBuilder;
     specificType(columnName: string, type: string): ColumnBuilder;
     primary(columnNames: readonly string[], constraintName?: string): TableBuilder;
     index(
@@ -1532,10 +1516,7 @@ export declare namespace Knex {
   }
 
   interface CreateTableBuilder extends TableBuilder {
-    engine(val: string): CreateTableBuilder;
-    charset(val: string): CreateTableBuilder;
     collate(val: string): CreateTableBuilder;
-    inherits(val: string): CreateTableBuilder;
   }
 
   interface AlterTableBuilder extends TableBuilder {}
