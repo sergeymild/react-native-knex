@@ -91,8 +91,7 @@ describe('SQLite SchemaBuilder', function () {
       .schemaBuilder()
       .table('users', function (table) {
         table.dropUnique('foo');
-      })
-      .toSQL();
+      }).toSQL();
 
     equal(1, tableSql.length);
     equal(tableSql[0].sql, 'drop index `users_foo_unique`');

@@ -25,58 +25,6 @@ const deley = async (timeout) => new Promise(resolve => {
 
 module.exports = (knex) => {
     describe('Schema', () => {
-        describe('errors for unsupported dialects', () => {
-            it('throws an error if client does not support createSchema', async function () {
-                let error;
-                try {
-                    await knex.schema.createSchema('test');
-                } catch (e) {
-                    error = e;
-                }
-                expect(error.message).to.equal(
-                    'createSchema is not supported for this dialect (only PostgreSQL supports it currently).'
-                );
-            });
-
-            it('throws an error if client does not support createSchemaIfNotExists', async function () {
-
-                let error;
-                try {
-                    await knex.schema.createSchemaIfNotExists('test');
-                } catch (e) {
-                    error = e;
-                }
-                expect(error.message).to.equal(
-                    'createSchemaIfNotExists is not supported for this dialect (only PostgreSQL supports it currently).'
-                );
-            });
-
-            it('throws an error if client does not support dropSchema', async function () {
-                let error;
-                try {
-                    await knex.schema.dropSchema('test');
-                } catch (e) {
-                    error = e;
-                }
-                expect(error.message).to.equal(
-                    'dropSchema is not supported for this dialect (only PostgreSQL supports it currently).'
-                );
-            });
-
-            it('throws an error if client does not support dropSchemaIfExists', async function () {
-
-                let error;
-                try {
-                    await knex.schema.dropSchemaIfExists('test');
-                } catch (e) {
-                    error = e;
-                }
-                expect(error.message).to.equal(
-                    'dropSchemaIfExists is not supported for this dialect (only PostgreSQL supports it currently).'
-                );
-            });
-        });
-
         describe('dropTable', () => {
             it('has a dropTableIfExists method', function () {
                 this.timeout(process.env.KNEX_TEST_TIMEOUT || 30000);
@@ -285,6 +233,7 @@ module.exports = (knex) => {
                                 .unsigned()
                                 .references('id_test')
                                 .inTable('rename_column_test');
+                            tbl.string('un').unique()
                         })
                         .createTable('rename_column_foreign_test', (tbl) => {
                             tbl.increments('id').unsigned().primary();
@@ -308,13 +257,8 @@ module.exports = (knex) => {
                 });
 
                 it('renames the column', async () => {
-                    await knex.schema.table('rename_column_test', (tbl) =>
-                        tbl.renameColumn('id_test', 'id')
-                    );
-                    const exists = await knex.schema.hasColumn(
-                        'rename_column_test',
-                        'id'
-                    );
+                    await knex.schema.table('rename_column_test', (tbl) => tbl.renameColumn('id_test', 'id'));
+                    const exists = await knex.schema.hasColumn('rename_column_test', 'id');
                     expect(exists).to.equal(true);
                 });
 
@@ -712,6 +656,18 @@ module.exports = (knex) => {
                             .then(() => tr.schema.dropTableIfExists(joinTableName))
                     )
             );
+        });
+
+        it('drop index', async () => {
+            await knex.schema.dropTableIfExists('drop_index_test')
+            await knex.schema.createTableIfNotExists('drop_index_test', (t) => {
+                t.string('un').index()
+            })
+            let re = await knex.table('drop_index_test').tableInfo()
+            expect(re.find(r => r.type === "index").name).to.equal("drop_index_test_un_index")
+            await knex.schema.table('drop_index_test', (tbl) => tbl.dropIndex('un'));
+            re = await knex.table('drop_index_test').tableInfo()
+            expect(re.find(r => r.type === "index")).to.be.undefined
         });
     });
 };

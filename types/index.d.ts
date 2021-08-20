@@ -1366,8 +1366,8 @@ export declare namespace Knex {
     not: QueryBuilder<TRecord, TResult>;
     and: QueryBuilder<TRecord, TResult>;
 
-    // TODO: Promise?
     columnInfo(column?: keyof TRecord): Promise<ColumnInfo>;
+    tableInfo(): Promise<TableInfo[]>;
 
     toSQL(): Sql;
 
@@ -1455,8 +1455,6 @@ export declare namespace Knex {
       callback: (tableBuilder: AlterTableBuilder) => any
     ): Promise<void>;
     dropTableIfExists(tableName: string): SchemaBuilder;
-    dropSchema(schemaName: string): SchemaBuilder;
-    dropSchemaIfExists(schemaName: string): SchemaBuilder;
     raw(statement: string): SchemaBuilder;
     withSchema(schemaName: string): SchemaBuilder;
     toString(): string;
@@ -1561,6 +1559,14 @@ export declare namespace Knex {
     type: string;
     maxLength: number;
     nullable: boolean;
+  }
+
+  interface TableInfo {
+    type: string;
+    name: string;
+    tbl_name: string;
+    sql: string;
+    rootpage: number
   }
 
   interface Config<SV extends {} = any> {
