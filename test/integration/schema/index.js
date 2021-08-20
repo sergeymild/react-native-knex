@@ -657,17 +657,5 @@ module.exports = (knex) => {
                     )
             );
         });
-
-        it('drop index', async () => {
-            await knex.schema.dropTableIfExists('drop_index_test')
-            await knex.schema.createTableIfNotExists('drop_index_test', (t) => {
-                t.string('un').index()
-            })
-            let re = await knex.table('drop_index_test').tableInfo()
-            expect(re.find(r => r.type === "index").name).to.equal("drop_index_test_un_index")
-            await knex.schema.table('drop_index_test', (tbl) => tbl.dropIndex('un'));
-            re = await knex.table('drop_index_test').tableInfo()
-            expect(re.find(r => r.type === "index")).to.be.undefined
-        });
     });
 };
