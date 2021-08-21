@@ -4,7 +4,7 @@ const tape = require('tape');
 const JSONStream = require('JSONStream');
 
 module.exports = function (knex) {
-  tape(knex.client.driverName + ' - transactions: before', function (t) {
+  tape('sqlite3 - transactions: before', function (t) {
     knex.schema
       .dropTableIfExists('test_table')
       .createTable('test_table', function (t) {

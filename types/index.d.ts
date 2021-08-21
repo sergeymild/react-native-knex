@@ -1532,7 +1532,6 @@ export declare namespace Knex {
     notNullable(): ColumnBuilder;
     nullable(): ColumnBuilder;
     comment(value: string): ColumnBuilder;
-    alter(): ColumnBuilder;
     withKeyName(keyName: string): ColumnBuilder;
   }
 

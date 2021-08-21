@@ -45,13 +45,11 @@ module.exports = function (knex) {
         });
 
         it('should allow raw queries directly with `knex.raw`', function () {
-            const tables = {
-                sqlite3: "SELECT name FROM sqlite_master WHERE type='table';",
-            };
+            const tables = "SELECT name FROM sqlite_master WHERE type='table';"
             return knex
-                .raw(tables[knex.client.driverName])
+                .raw(tables)
                 .testSql(function (tester) {
-                    tester(knex.client.driverName, tables[knex.client.driverName]);
+                    tester('sqlite3', tables);
                 });
         });
 
@@ -107,10 +105,6 @@ module.exports = function (knex) {
         });
 
         it('#2184 - should properly escape table name for SQLite columnInfo', function () {
-            if (knex.client.driverName !== 'sqlite3') {
-                return this.skip();
-            }
-
             return knex.schema
                 .dropTableIfExists('group')
                 .then(function () {

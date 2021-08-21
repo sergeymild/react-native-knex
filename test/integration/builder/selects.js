@@ -362,24 +362,12 @@ module.exports = function (knex) {
         });
 
         it('does where(raw)', function () {
-            if (knex.client.driverName === 'oracledb') {
-                // special case for oracle
-                return knex.table('accounts')
-                    .whereExists(function () {
-                        this.table('test_table_two').select(knex.raw(1))
-                            .where(
-                                knex.raw('"test_table_two"."account_id" = "accounts"."id"')
-                            );
-                    })
-                    .select();
-            } else {
-                return knex.table('accounts')
-                    .whereExists(function () {
-                        this.table('test_table_two').select(knex.raw(1))
-                            .where(knex.raw('test_table_two.account_id = accounts.id'));
-                    })
-                    .select();
-            }
+            return knex.table('accounts')
+                .whereExists(function () {
+                    this.table('test_table_two').select(knex.raw(1))
+                        .where(knex.raw('test_table_two.account_id = accounts.id'));
+                })
+                .select();
         });
 
         it('does sub-selects', function () {
@@ -395,15 +383,9 @@ module.exports = function (knex) {
         });
 
         it('Allows for knex.Raw passed to the `where` clause', function () {
-            if (knex.client.driverName === 'oracledb') {
-                return knex.table('accounts')
-                    .where(knex.raw('"id" = 2'))
-                    .select('email', 'logins');
-            } else {
-                return knex.table('accounts')
-                    .where(knex.raw('id = 2'))
-                    .select('email', 'logins');
-            }
+            return knex.table('accounts')
+                .where(knex.raw('id = 2'))
+                .select('email', 'logins');
         });
 
         it('Retains array bindings, #228', function () {

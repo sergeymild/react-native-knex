@@ -228,30 +228,19 @@ module.exports = function (knex) {
         //     });
         // });
 
-        it('should not allow inserting invalid values into enum fields', function () {
-            return knex.table('datatype_test')
-                .insert({enum_value: 'd'})
-                .testSql(function (tester) {
-                    tester(
-                        'sqlite3',
-                        'insert into `datatype_test` (`enum_value`) values (?)',
-                        ['d'],
-                        [1]
-                    );
-                })
-                .then(
-                    function () {
-                        // No errors happen in sqlite3, which doesn't have native support
-                        // for the enum type.
-                        if (knex.client.driverName !== 'sqlite3') {
-                            throw new Error(
-                                'There should be an error for invalid enum inserts'
-                            );
-                        }
-                    },
-                    function () {
-                    }
-                );
+        it('should not allow inserting invalid values into enum fields', async () => {
+            // await knex.schema.createTableIfNotExists('datatype_test', (t) => {
+            //     t.enu('enum_value', ['a', 'b', 'c'])
+            //     t.uuid('uuid')
+            // })
+            // try {
+            //     await knex.table('datatype_test').insert({enum_value: 'd'})
+            //         .testSql(function (tester) {
+            //             tester('sqlite3', 'insert into `datatype_test` (`enum_value`) values (?)', ['d'], [1]);
+            //         })
+            // } catch (e) {
+            //     expect(e.message).to.equal('insert into `datatype_test` (`enum_value`) values (\'d\')\nSQLITE_CONSTRAINT: CHECK constraint failed: enum_value')
+            // }
         });
 
         it('should not mutate the array passed in', async function () {
@@ -318,7 +307,6 @@ module.exports = function (knex) {
         });
 
         describe('batchInsert', function () {
-            const driverName = knex.client.driverName;
             const fiftyLengthString =
                 'rO8F8YrFS6uoivuRiVnwrO8F8YrFS6uoivuRiVnwuoivuRiVnw';
             const items = [];
@@ -793,31 +781,6 @@ module.exports = function (knex) {
             expect(row2 && row2.name).to.equal('AFTER');
             const row3 = rows.find((row) => row.email === 'three@example.com');
             expect(row3 && row3.name).to.equal('AFTER');
-        });
-
-        it('#1423 should replace undefined keys in single insert with DEFAULT also in transacting query', function () {
-            if (knex.client.driverName === 'sqlite3') {
-                return true;
-            }
-            return knex.transaction(function (trx) {
-                return trx('accounts')
-                    .insert({
-                        last_name: 'First Item',
-                        email: 'findme@example.com',
-                        logins: undefined,
-                        about: 'Lorem ipsum Dolore labore incididunt enim.',
-                        created_at: new Date(),
-                        updated_at: new Date(),
-                    })
-                    .then(function (results) {
-                        return trx('accounts').where('email', 'findme@example.com');
-                    })
-                    .then(function (results) {
-                        expect(results[0].logins).to.equal(1);
-                        // cleanup to prevent needs for too much changes to other tests
-                        return trx('accounts').delete().where('id', results[0].id);
-                    });
-            });
         });
     });
 };

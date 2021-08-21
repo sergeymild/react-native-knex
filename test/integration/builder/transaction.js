@@ -8,11 +8,6 @@ const sinon = require('sinon');
 const delay = require('../../../lib/util/delay');
 
 module.exports = function (knex) {
-    // Certain dialects do not have proper insert with returning, so if this is true
-    // then pick an id to use as the "foreign key" just for testing transactions.
-    const constid = /redshift/.test(knex.client.driverName);
-    let fkid = 1;
-
     describe('Transactions', function () {
         it('should throw when undefined transaction is sent to transacting', async function () {
             await knex.schema.dropTableIfExists('accounts')
@@ -48,10 +43,7 @@ module.exports = function (knex) {
 
         it('supports direct retrieval of a transaction without a callback', () => {
             const trxPromise = knex.transaction();
-            const query =
-                knex.client.driverName === 'oracledb'
-                    ? '1 as "result" from DUAL'
-                    : '1 as result';
+            const query = '1 as result'
 
             let transaction;
             return trxPromise
@@ -109,7 +101,7 @@ module.exports = function (knex) {
                             return knex.table('test_table_two')
                                 .transacting(t)
                                 .insert({
-                                    account_id: constid ? ++fkid : (id = resp[0]),
+                                    account_id: (id = resp[0]),
                                     details: '',
                                     status: 1,
                                 });
@@ -123,9 +115,7 @@ module.exports = function (knex) {
                     return knex.table('accounts').where('id', id).select('first_name');
                 })
                 .then(function (resp) {
-                    if (!constid) {
-                        expect(resp).to.have.length(1);
-                    }
+                    expect(resp).to.have.length(1);
                 });
         });
 
@@ -149,7 +139,7 @@ module.exports = function (knex) {
                             return knex.table('test_table_two')
                                 .transacting(t)
                                 .insert({
-                                    account_id: constid ? ++fkid : (id = resp[0]),
+                                    account_id: (id = resp[0]),
                                     details: '',
                                     status: 1,
                                 });
@@ -183,7 +173,7 @@ module.exports = function (knex) {
                         })
                         .then(function (resp) {
                             return trx.table('test_table_two').insert({
-                                account_id: constid ? ++fkid : (id = resp[0]),
+                                account_id: (id = resp[0]),
                                 details: '',
                                 status: 1,
                             });
@@ -197,9 +187,7 @@ module.exports = function (knex) {
                     return knex.table('accounts').where('id', id).select('first_name');
                 })
                 .then(function (resp) {
-                    if (!constid) {
-                        expect(resp).to.have.length(1);
-                    }
+                    expect(resp).to.have.length(1);
                 });
         });
 
@@ -224,7 +212,7 @@ module.exports = function (knex) {
                             return trx
                                 .table('test_table_two')
                                 .insert({
-                                    account_id: constid ? ++fkid : (id = resp[0]),
+                                    account_id: (id = resp[0]),
                                     details: '',
                                     status: 1,
                                 });
@@ -266,7 +254,7 @@ module.exports = function (knex) {
                         })
                         .then(function (resp) {
                             return trx.table('test_table_two').insert({
-                                account_id: constid ? ++fkid : (id = resp[0]),
+                                account_id: (id = resp[0]),
                                 details: '',
                                 status: 1,
                             });
@@ -288,19 +276,11 @@ module.exports = function (knex) {
                     expect(__knexUid).to.equal(obj.__knexUid);
                 })
                 .then(function () {
-                    if (knex.client.driverName === 'mssql') {
-                        expect(count).to.equal(3);
-                    } else if (knex.client.driverName === 'oracledb') {
-                        expect(count).to.equal(4);
-                    } else {
-                        expect(count).to.equal(5);
-                    }
+                    expect(count).to.equal(5);
                     return knex.table('accounts').where('id', id).select('first_name');
                 })
                 .then(function (resp) {
-                    if (!constid) {
-                        expect(resp).to.have.length(1);
-                    }
+                    expect(resp).to.have.length(1);
                 });
 
             try {
@@ -330,9 +310,6 @@ module.exports = function (knex) {
         });
 
         it('should allow for nested transactions', function () {
-            if (/redshift/i.test(knex.client.driverName)) {
-                return Promise.resolve();
-            }
             return knex.transaction(function (trx) {
                 return trx
                     .table('accounts')
@@ -362,10 +339,6 @@ module.exports = function (knex) {
         });
 
         it('#2213 - should not evaluate a Transaction container until all previous siblings have completed', async function () {
-            if (/redshift/i.test(knex.client.driverName)) {
-                return this.skip();
-            }
-
             const TABLE_NAME = 'test_sibling_transaction_order';
             await knex.schema.dropTableIfExists(TABLE_NAME);
             await knex.schema.createTable(TABLE_NAME, function (t) {

@@ -17,7 +17,7 @@ Object.keys(knexfile).forEach(function (key) {
   // require('./transactions')(knex);
 
   // Tear down the knex connection
-  tape(knex.client.driverName + ' - transactions: after', function (t) {
+  tape('sqlite3 - transactions: after', function (t) {
     knex.destroy(function () {
       t.pass('Knex client destroyed');
       t.end();
