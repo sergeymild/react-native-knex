@@ -574,6 +574,22 @@ describe('SQLite SchemaBuilder', function () {
     deepEqual(expected, _.map(tableSql, 'sql'));
   });
 
+  it('adding time stamps with now', function () {
+    tableSql = client
+      .schemaBuilder()
+      .table('users', function (table) {
+        table.timestamps(true);
+      })
+      .toSQL();
+
+    equal(2, tableSql.length);
+    const expected = [
+      'alter table `users` add column `created_at` datetime not null default CURRENT_TIMESTAMP',
+      'alter table `users` add column `updated_at` datetime not null default CURRENT_TIMESTAMP',
+    ];
+    deepEqual(expected, _.map(tableSql, 'sql'));
+  });
+
   it('adding binary', function () {
     tableSql = client
       .schemaBuilder()
