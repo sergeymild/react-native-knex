@@ -10,8 +10,6 @@
 
 
 const EventEmitter = require('../lib/EventEmitter')
-const ResultTypes = require('./result')
-const { Tables } = require('./tables')
 
 // # Generic type-level utilities
 
@@ -298,15 +296,9 @@ type Dict<T = any> = { [k: string]: T; };
 
 type SafePick<T, K extends keyof T> = T extends {} ? Pick<T, K> : any;
 
-type TableOptions = PgTableOptions;
-
-interface PgTableOptions {
-  only?: boolean;
-}
-
 declare class Knex<TRecord extends {} = any, TResult = unknown[]> extends Knex.QueryBuilder<TRecord, TResult>, EventEmitter {
   constructor(client: Knex.Client)
-  table: <TRecord2 = TRecord, TResult2 = DeferredKeySelection<TRecord2, never>[]>(tableName: Knex.TableDescriptor | Knex.AliasDict, options?: TableOptions) => Knex.QueryBuilder<TRecord2, TResult2>
+  table: <TRecord2 = TRecord, TResult2 = DeferredKeySelection<TRecord2, never>[]>(tableName: Knex.TableDescriptor | Knex.AliasDict) => Knex.QueryBuilder<TRecord2, TResult2>
 
   raw: Knex.RawBuilder<TRecord>;
 
@@ -406,7 +398,6 @@ export declare namespace Knex {
   //
   // QueryInterface
   //
-  type ClearStatements = "with" | "select" | "columns" | "where" | "union" | "join" | "group" | "order" | "having" | "limit" | "offset" | "counter" | "counters";
 
   interface QueryInterface<TRecord extends {} = any, TResult = any> {
     select: Select<TRecord, TResult>;
@@ -423,7 +414,6 @@ export declare namespace Knex {
     with: With<TRecord, TResult>;
     withRecursive: With<TRecord, TResult>;
     withRaw: WithRaw<TRecord, TResult>;
-    withSchema: WithSchema<TRecord, TResult>;
     withWrapped: WithWrapped<TRecord, TResult>;
 
     // Wheres
@@ -478,23 +468,6 @@ export declare namespace Knex {
     orHavingBetween: HavingRange<TRecord, TResult>;
     havingBetween: HavingRange<TRecord, TResult>;
 
-    // Clear
-    clearSelect(): QueryBuilder<
-      TRecord,
-      UnwrapArrayMember<TResult> extends DeferredKeySelection<
-        infer TBase,
-        infer TKeys,
-        true,
-        any,
-        any,
-        any,
-        any
-      >
-        ? DeferredKeySelection<TBase, never>[]
-        : TResult
-    >;
-    clear(statement: ClearStatements): QueryBuilder<TRecord, TResult>;
-
     // Paging
     offset(offset: number): QueryBuilder<TRecord, TResult>;
     limit(limit: number): QueryBuilder<TRecord, TResult>;
@@ -530,9 +503,7 @@ export declare namespace Knex {
     // Others
     first: Select<TRecord, DeferredKeySelection.AddUnionMember<UnwrapArrayMember<TResult>, undefined>>;
 
-    pluck<K extends keyof TRecord>(
-      column: K
-    ): QueryBuilder<TRecord, TRecord[K][]>;
+    pluck<K extends keyof TRecord>(column: K): QueryBuilder<TRecord, TRecord[K][]>;
     pluck<TResult2 extends {}>(column: string): QueryBuilder<TRecord, TResult2>;
 
     insert(data: TRecord extends CompositeTableType<unknown>
@@ -680,26 +651,6 @@ export declare namespace Knex {
       columns: readonly TKey[]
     ): OnConflictQueryBuilder<TRecord, TResult2>;
 
-    del(): QueryBuilder<TRecord, DeferredKeySelection<TRecord, never>[]>;
-    del<
-      TKey extends StrKey<TRecord>,
-      TResult2 = DeferredIndex.Augment<
-        UnwrapArrayMember<TResult>,
-        TRecord,
-        TKey
-      >[]
-    >(): QueryBuilder<TRecord, TResult2>;
-    del<
-      TKey extends StrKey<TRecord>,
-      TResult2 = DeferredKeySelection.Augment<
-        UnwrapArrayMember<TResult>,
-        TRecord,
-        TKey
-      >[]
-    >(): QueryBuilder<TRecord, TResult2[]>;
-    del<TResult2 = SafePartial<TRecord>[]>(): QueryBuilder<TRecord, TResult2>;
-    del<TResult2 = number>(): QueryBuilder<TRecord, TResult2>;
-
     delete(): QueryBuilder<TRecord, DeferredKeySelection<TRecord, never>[]>;
     delete<
       TKey extends StrKey<ResolveTableType<TRecord>>,
@@ -810,28 +761,24 @@ export declare namespace Knex {
       TResult2 = DeferredKeySelection.ReplaceBase<TResult, ResolveTableType<TRecord2>>
     >(
       tableName: TTable,
-      options?: TableOptions
     ): QueryBuilder<TRecord2, TResult2>;
     <
       TRecord2 = unknown,
       TResult2 = DeferredKeySelection.ReplaceBase<TResult, TRecord2>
     >(
       tableName: TableDescriptor | AliasDict,
-      options?: TableOptions
     ): QueryBuilder<TRecord2, TResult2>;
     <
       TRecord2 = unknown,
       TResult2 = DeferredKeySelection.ReplaceBase<TResult, TRecord2>
     >(
       callback: Function,
-      options?: TableOptions
     ): QueryBuilder<TRecord2, TResult2>;
     <
       TRecord2 = unknown,
       TResult2 = DeferredKeySelection.ReplaceBase<TResult, TRecord2>
     >(
       raw: Raw,
-      options?: TableOptions
     ): QueryBuilder<TRecord2, TResult2>;
   }
 
@@ -1420,9 +1367,7 @@ export declare namespace Knex {
       status: any,
       value: any
     ): QueryBuilder<TRecord, TResult>;
-    savepoint<T = any>(
-      transactionScope: (trx: Transaction) => any
-    ): Promise<T>;
+    savepoint<T = any>(conn: any): Promise<T>;
     commit(value?: any): QueryBuilder<TRecord, TResult>;
     rollback(error?: any): QueryBuilder<TRecord, TResult>;
   }
