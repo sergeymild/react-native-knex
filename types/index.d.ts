@@ -1440,8 +1440,6 @@ export declare namespace Knex {
       tableName: string,
       callback?: (tableBuilder: CreateTableBuilder) => any
     ): SchemaBuilder;
-    createSchema(schemaName: string): SchemaBuilder;
-    createSchemaIfNotExists(schemaName: string): SchemaBuilder;
     alterTable(
       tableName: string,
       callback: (tableBuilder: CreateTableBuilder) => any

@@ -97,6 +97,19 @@ module.exports = (knex) => {
           );
       });
 
+      it('allows adding drop columns at once', async function () {
+        await knex.schema.dropTableIfExists('test_table_two')
+        await knex.schema.createTable('test_table_two', (t) => {
+            t.string('one');
+            t.string('two');
+            t.string('three');
+          })
+
+        await knex.schema.table('test_table_two', (t) => {
+          t.dropColumns(['one', 'two']);
+        })
+      });
+
       it('handles creating numeric columns with specified length correctly', () =>
         knex.schema
           .createTable('test_table_numerics2', (table) => {
