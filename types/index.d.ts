@@ -1450,7 +1450,6 @@ export declare namespace Knex {
     hasColumn(tableName: string, columnName: string): Promise<boolean>;
     dropTableIfExists(tableName: string): SchemaBuilder;
     raw(statement: string): SchemaBuilder;
-    withSchema(schemaName: string): SchemaBuilder;
     toString(): string;
     toSQL(): Sql;
   }
@@ -1461,7 +1460,7 @@ export declare namespace Knex {
     dropColumns(...columnNames: string[]): TableBuilder;
     renameColumn(from: string, to: string): ColumnBuilder;
     integer(columnName: string, length?: number): ColumnBuilder;
-    text(columnName: string, textType?: string): ColumnBuilder;
+    text(columnName: string): ColumnBuilder;
     string(columnName: string, length?: number): ColumnBuilder;
     real(
       columnName: string,
@@ -1474,22 +1473,17 @@ export declare namespace Knex {
     time(columnName: string): ColumnBuilder;
     timestamp(columnName: string): ColumnBuilder;
     timestamps(makeDefaultNow?: boolean): ColumnBuilder;
-    binary(columnName: string, length?: number): ColumnBuilder;
-    enum(
-      columnName: string,
-      values: readonly Value[],
-      options?: EnumOptions
-    ): ColumnBuilder;
+    binary(columnName: string): ColumnBuilder;
+    enum(columnName: string, values: readonly Value[]): ColumnBuilder;
     json(columnName: string): ColumnBuilder;
     uuid(columnName: string): ColumnBuilder;
     specificType(columnName: string, type: string): ColumnBuilder;
     primary(columnNames: readonly string[], constraintName?: string): TableBuilder;
     index(
-      columnNames: string | readonly (string | Raw)[],
+      columnNames: string | string[],
       indexName?: string,
-      indexType?: string
     ): TableBuilder;
-    unique(columnNames: readonly (string | Raw)[], indexName?: string): TableBuilder;
+    unique(columnNames: string[], indexName?: string): TableBuilder;
     foreign(column: string, foreignKeyName?: string): ForeignConstraintBuilder;
     foreign(
       columns: readonly string[],
@@ -1497,14 +1491,12 @@ export declare namespace Knex {
     ): MultikeyForeignConstraintBuilder;
     dropForeign(columnNames: readonly string[], foreignKeyName?: string): TableBuilder;
     dropUnique(columnNames: readonly (string | Raw)[], indexName?: string): TableBuilder;
-    dropIndex(columnNames: string | readonly (string | Raw)[], indexName?: string): TableBuilder;
+    dropIndex(columnNames: string | readonly string[], indexName?: string): TableBuilder;
   }
 
   interface CreateTableBuilder extends TableBuilder {
     collate(val: string): CreateTableBuilder;
   }
-
-  interface AlterTableBuilder extends TableBuilder {}
 
   interface ColumnBuilder {
     index(indexName?: string): ColumnBuilder;
@@ -1577,13 +1569,6 @@ export declare namespace Knex {
 
   interface FunctionHelper {
     now(precision?: number): Raw;
-  }
-
-  interface EnumOptions {
-    useNative: boolean;
-    existingType?: boolean;
-    schemaName?: string;
-    enumName: string;
   }
 
   //
