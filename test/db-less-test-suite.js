@@ -12,6 +12,7 @@ describe('Util Tests', function () {
 describe('Query Building Tests', function () {
   this.timeout(process.env.KNEX_TEST_TIMEOUT || 5000);
 
+  require('./tape');
   require('./unit/query/builder');
   require('./unit/query/formatter');
   require('./unit/query/string');

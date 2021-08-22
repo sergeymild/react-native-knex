@@ -14,7 +14,7 @@ module.exports = function (knex) {
             await knex.table('accounts').insert({first_name: 'some'})
             await knex.table('accounts').insert({first_name: '22'})
 
-            return knex.table('accounts')
+            const r = await knex.table('accounts')
                 .where('id', 1)
                 .delete()
                 .testSql(function (tester) {

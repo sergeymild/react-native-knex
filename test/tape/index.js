@@ -1,26 +1,15 @@
 /*eslint no-var:0*/
 'use strict';
-// var wtf = require('wtfnode');
-require('../util/chai-setup');
-var tape = require('tape');
+
 var makeKnex = require('../../knex');
 var knexfile = require('../knexfile');
 
-require('./raw');
+const {Knex, SQLite3Client} = require("../../knex");
+const sqlite3 = require("sqlite3");
+const config = require('../knexfile');
+
+const knex = new Knex(new SQLite3Client(config, sqlite3))
+
+
 require('./query-builder');
-require('./pool');
-require('./knex');
-
-Object.keys(knexfile).forEach(function (key) {
-  var knex = makeKnex(knexfile[key]);
-
-  // require('./transactions')(knex);
-
-  // Tear down the knex connection
-  tape('sqlite3 - transactions: after', function (t) {
-    knex.destroy(function () {
-      t.pass('Knex client destroyed');
-      t.end();
-    });
-  });
-});
+require('./transactions')(knex);

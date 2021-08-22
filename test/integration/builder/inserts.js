@@ -273,7 +273,7 @@ module.exports = function (knex) {
                 })
                 .then(function () {
                     return knex.table('test_default_table')
-                        .insert({}, 'id')
+                        .insert({})
                         .testSql(function (tester) {
                             tester(
                                 'sqlite3',
