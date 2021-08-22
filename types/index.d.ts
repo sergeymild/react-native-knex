@@ -1474,13 +1474,11 @@ export declare namespace Knex {
       precision?: number,
       scale?: number
     ): ColumnBuilder;
-    bool(columnName: string): ColumnBuilder;
+    boolean(columnName: string): ColumnBuilder;
     date(columnName: string): ColumnBuilder;
-    dateTime(columnName: string, options?: Readonly<{useTz?: boolean, precision?: number}>): ColumnBuilder;
+    dateTime(columnName: string): ColumnBuilder;
     time(columnName: string): ColumnBuilder;
-    timestamp(columnName: string, options?: Readonly<{useTz?: boolean, precision?: number}>): ColumnBuilder;
-    /** @deprecated */
-    timestamp(columnName: string, withoutTz?: boolean, precision?: number): ColumnBuilder;
+    timestamp(columnName: string): ColumnBuilder;
     timestamps(makeDefaultNow?: boolean): ColumnBuilder;
     binary(columnName: string, length?: number): ColumnBuilder;
     enum(
