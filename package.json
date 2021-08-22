@@ -9,7 +9,8 @@
   },
   "scripts": {
     "lint:types": "tsd && dtslint types",
-    "test": "mocha --exit -t 10000 --config test/mocha-all-config-test.js"
+    "test": "mocha --exit -t 10000 --config test/mocha-all-config-test.js",
+    "build": "tsd"
   },
   "dependencies": {
     "eventemitter3": "^4.0.7",
