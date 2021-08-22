@@ -75,7 +75,7 @@ module.exports = (knex) => {
           t.increments('id')
         })
           .then(async () => {
-            return knex.schema.table('test_table_two', (t) => {
+            return knex.schema.alterTable('test_table_two', (t) => {
               t.json('json_data', true);
             })
           })
@@ -90,7 +90,7 @@ module.exports = (knex) => {
             t.string('three');
           })
           .then((args) =>
-            knex.schema.table('test_table_two', (t) => {
+            knex.schema.alterTable('test_table_two', (t) => {
               t.dropColumn('one');
               t.dropColumn('two');
             })
@@ -105,7 +105,7 @@ module.exports = (knex) => {
             t.string('three');
           })
 
-        await knex.schema.table('test_table_two', (t) => {
+        await knex.schema.alterTable('test_table_two', (t) => {
           t.dropColumns(['one', 'two']);
         })
       });
@@ -119,16 +119,16 @@ module.exports = (knex) => {
 
       it('allows adding a field with custom collation after another field', () =>
         knex.schema
-          .table('test_table_two', (t) => {
+          .alterTable('test_table_two', (t) => {
             t.string('ref_column').after('json_data');
           })
           .then(() =>
-            knex.schema.table('test_table_two', (t) => {
+            knex.schema.alterTable('test_table_two', (t) => {
               t.string('after_column').after('ref_column').collate('utf8_bin');
             })
           )
           .then(() =>
-            knex.schema.table('test_table_two', (t) => {
+            knex.schema.alterTable('test_table_two', (t) => {
               t.dropColumn('ref_column');
               t.dropColumn('after_column');
             })
@@ -136,18 +136,18 @@ module.exports = (knex) => {
 
       it('allows adding a field with custom collation first', () =>
         knex.schema
-          .table('test_table_two', (t) => {
+          .alterTable('test_table_two', (t) => {
             t.string('first_column').first().collate('utf8_bin');
           })
           .then(() =>
-            knex.schema.table('test_table_two', (t) => {
+            knex.schema.alterTable('test_table_two', (t) => {
               t.dropColumn('first_column');
             })
           ));
 
       it('allows changing a field', async () => {
         await knex.schema.createTableIfNotExists('test_table_one')
-        return knex.schema.table('test_table_one', (t) => {
+        return knex.schema.alterTable('test_table_one', (t) => {
           t.string('phone').nullable();
         });
       })
@@ -158,7 +158,7 @@ module.exports = (knex) => {
           t.string('column_b')
           t.unique(['column_a', 'column_b'])
         })
-        return knex.schema.table('composite_key_test', (t) => {
+        return knex.schema.alterTable('composite_key_test', (t) => {
           t.dropUnique(['column_a', 'column_b']);
         });
       })
@@ -169,7 +169,7 @@ module.exports = (knex) => {
           t.string('first_name')
           t.index('first_name')
         })
-        return knex.schema.table('test_table_one', (t) => {
+        return knex.schema.alterTable('test_table_one', (t) => {
           t.dropIndex('first_name');
         })
       })
@@ -270,18 +270,18 @@ module.exports = (knex) => {
         });
 
         it('renames the column', async () => {
-          await knex.schema.table('rename_column_test', (tbl) => tbl.renameColumn('id_test', 'id'));
+          await knex.schema.alterTable('rename_column_test', (tbl) => tbl.renameColumn('id_test', 'id'));
           const exists = await knex.schema.hasColumn('rename_column_test', 'id');
           expect(exists).to.equal(true);
         });
 
         it('successfully renames a column referenced in a foreign key', () =>
-          knex.schema.table('rename_column_test', (tbl) => {
+          knex.schema.alterTable('rename_column_test', (tbl) => {
             tbl.renameColumn('parent_id_test', 'parent_id');
           }));
 
         it('successfully renames a column referenced by another table', () =>
-          knex.schema.table('rename_column_test', (tbl) => {
+          knex.schema.alterTable('rename_column_test', (tbl) => {
             tbl.renameColumn('id', 'id_new');
           }));
 
@@ -296,7 +296,7 @@ module.exports = (knex) => {
                 // IE mysql 'knex', postgres 'knex::character varying'
                 expect(colInfo.colnamestring.defaultValue).to.contain('knex');
                 expect(colInfo.colnamestring.nullable).to.equal(false);
-                return tr.schema.table(tableName, (table) => {
+                return tr.schema.alterTable(tableName, (table) => {
                   table.renameColumn('colnameint', 'colnameintchanged');
                   table.renameColumn('colnamestring', 'colnamestringchanged');
                 });
@@ -505,7 +505,7 @@ module.exports = (knex) => {
                   return Promise.resolve();
                 });
             } else {
-              return tr.schema.table(tableName, (table) => {
+              return tr.schema.alterTable(tableName, (table) => {
                 // For everything else just drop the constraint by name to check existence
                 table.dropUnique('test', singleUniqueName);
               });
@@ -519,7 +519,7 @@ module.exports = (knex) => {
             })
           )
           .then(() =>
-            tr.schema.table(tableName, (table) => {
+            tr.schema.alterTable(tableName, (table) => {
               table.unique('test', singleUniqueName);
               table.unique(['test', 'test2'], multiUniqueName);
             })
@@ -570,7 +570,7 @@ module.exports = (knex) => {
                   return Promise.resolve();
                 });
             } else {
-              return tr.schema.table(tableName, (table) => {
+              return tr.schema.alterTable(tableName, (table) => {
                 // For everything else just drop the constraint by name to check existence
                 table.dropUnique('test', singleUniqueName);
                 table.dropUnique(['test', 'test2'], multiUniqueName);
@@ -656,7 +656,7 @@ module.exports = (knex) => {
                   return Promise.resolve();
                 });
             } else {
-              return tr.schema.table(joinTableName, (table) => {
+              return tr.schema.alterTable(joinTableName, (table) => {
                 table.dropForeign('user', userConstraint);
                 table.dropForeign('group', groupConstraint);
               });

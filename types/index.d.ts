@@ -1448,10 +1448,6 @@ export declare namespace Knex {
     dropTable(tableName: string): SchemaBuilder;
     hasTable(tableName: string): Promise<boolean>;
     hasColumn(tableName: string, columnName: string): Promise<boolean>;
-    table(
-      tableName: string,
-      callback: (tableBuilder: AlterTableBuilder) => any
-    ): Promise<void>;
     dropTableIfExists(tableName: string): SchemaBuilder;
     raw(statement: string): SchemaBuilder;
     withSchema(schemaName: string): SchemaBuilder;

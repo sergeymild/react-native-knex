@@ -304,7 +304,7 @@ module.exports = function (knex) {
                 t.string('column_b')
                 t.unique(['column_a', 'column_b'])
             })
-            return knex.schema.table('composite_key_test', (t) => {
+            return knex.schema.alterTable('composite_key_test', (t) => {
                 t.dropUnique(['column_a', 'column_b']);
             });
 

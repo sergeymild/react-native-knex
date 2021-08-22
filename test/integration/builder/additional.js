@@ -154,7 +154,7 @@ module.exports = function (knex) {
                 .then(function (resp) {
                     count = resp[0][countColumn];
                     return knex.schema
-                        .table('accounts', function (t) {
+                        .alterTable('accounts', function (t) {
                             t.renameColumn('about', 'about_col');
                         })
                         .testSql(function (tester) {
@@ -171,7 +171,7 @@ module.exports = function (knex) {
                     return knex.table('accounts').select('about_col');
                 })
                 .then(function () {
-                    return knex.schema.table('accounts', function (t) {
+                    return knex.schema.alterTable('accounts', function (t) {
                         t.renameColumn('about_col', 'about');
                     });
                 })
@@ -194,7 +194,7 @@ module.exports = function (knex) {
                 })
                 .then(function () {
                     return knex.schema
-                        .table('accounts', function (t) {
+                        .alterTable('accounts', function (t) {
                             t.dropColumn('first_name');
                         })
                         .testSql(function (tester) {
