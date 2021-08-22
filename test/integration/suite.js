@@ -12,6 +12,7 @@ module.exports = function (knex) {
       return knex.destroy();
     });
 
+    require('./schema/specific-type.spec')(knex);
     require('./schema')(knex);
     require('./schema/foreign-keys')(knex);
     require('./builder/inserts')(knex);

@@ -1508,9 +1508,7 @@ export declare namespace Knex {
     ): MultikeyForeignConstraintBuilder;
     dropForeign(columnNames: readonly string[], foreignKeyName?: string): TableBuilder;
     dropUnique(columnNames: readonly (string | Raw)[], indexName?: string): TableBuilder;
-    dropPrimary(constraintName?: string): TableBuilder;
     dropIndex(columnNames: string | readonly (string | Raw)[], indexName?: string): TableBuilder;
-    dropTimestamps(): ColumnBuilder;
   }
 
   interface CreateTableBuilder extends TableBuilder {
@@ -1531,7 +1529,6 @@ export declare namespace Knex {
     unsigned(): ColumnBuilder;
     notNullable(): ColumnBuilder;
     nullable(): ColumnBuilder;
-    comment(value: string): ColumnBuilder;
     withKeyName(keyName: string): ColumnBuilder;
   }
 
@@ -1546,8 +1543,6 @@ export declare namespace Knex {
   interface ReferencingColumnBuilder extends ColumnBuilder {
     inTable(tableName: string): ColumnBuilder;
   }
-
-  interface AlterColumnBuilder extends ColumnBuilder {}
 
   //
   // Configurations
@@ -1609,11 +1604,8 @@ export declare namespace Knex {
   class Client extends EventEmitter {
     constructor(config: Config, driver: any);
     config: Config;
-    dialect: string;
-    driverName: string;
     connectionSettings: object;
 
-    destroyRawConnection(connection: any): Promise<void>;
     logger: Logger;
     version?: string;
     valueForUndefined: any;
@@ -1631,8 +1623,6 @@ export declare namespace Knex {
     raw(...args: any[]): any;
     ref(...args: any[]): Ref<any, any>;
     query(connection: any, obj: any): any;
-    prepBindings(bindings: any): any;
-    positionBindings(sql: any): any;
     driver: any;
     acquireConnection(): any;
     releaseConnection(connection: any): any;
