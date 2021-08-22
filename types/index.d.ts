@@ -1486,7 +1486,7 @@ export declare namespace Knex {
       makeDefaultNow?: boolean
     ): ColumnBuilder;
     binary(columnName: string, length?: number): ColumnBuilder;
-    enu(
+    enum(
       columnName: string,
       values: readonly Value[],
       options?: EnumOptions
