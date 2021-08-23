@@ -1275,8 +1275,6 @@ export declare namespace Knex {
     toSQL(): Sql;
 
     on(event: string, callback: Function): QueryBuilder<TRecord, TResult>;
-    clone(): QueryBuilder<TRecord, TResult>;
-    timeout(ms: number, options?: {cancel?: boolean}): QueryBuilder<TRecord, TResult>;
   }
 
   interface Sql {
