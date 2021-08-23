@@ -308,13 +308,7 @@ declare class Knex<TRecord extends {} = any, TResult = unknown[]> extends Knex.Q
   destroy(callback: Function): void;
   destroy(): Promise<void>;
 
-  batchInsert<TRecord2 = TRecord, TResult2 = number[]>(
-    tableName: Knex.TableDescriptor,
-    data: TRecord2 extends Knex.CompositeTableType<unknown>
-      ? ReadonlyArray<Knex.ResolveTableType<TRecord2, 'insert'>>
-      : ReadonlyArray<Knex.DbRecordArr<TRecord2>>,
-    chunkSize?: number,
-  ): Knex.BatchInsertBuilder<TRecord2, TResult2>;
+  batchInsert<TRecord2 = TRecord, TResult2 = number[]>(tableName: Knex.TableDescriptor): Knex.BatchInsertBuilder<TRecord2, TResult2>;
 
   schema: Knex.SchemaBuilder;
   // queryBuilder<TRecord2 = TRecord, TResult2 = TResult>(): Knex.QueryBuilder<TRecord2, TResult2>;
@@ -1290,6 +1284,9 @@ export declare namespace Knex {
 
   interface BatchInsertBuilder<TRecord extends {} = any, TResult = number[]> extends Promise<ResolveResult<TResult>> {
     transacting(trx: Transaction): this;
+    chunkSize(size: number): this;
+    items(items: any[]): this
+    onConflict(tableName: string): OnConflictQueryBuilder<TRecord, TResult2>
   }
 
   //
