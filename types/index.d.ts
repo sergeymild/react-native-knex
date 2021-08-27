@@ -456,6 +456,10 @@ export declare namespace Knex {
     havingRaw: RawQueryBuilder<TRecord, TResult>;
     orHaving: Having<TRecord, TResult>;
     orHavingRaw: RawQueryBuilder<TRecord, TResult>;
+    havingNull: RawQueryBuilder<TRecord, TResult>;
+    orHavingNull: RawQueryBuilder<TRecord, TResult>;
+    havingNotNull: RawQueryBuilder<TRecord, TResult>;
+
 
     // Paging
     offset(offset: number): QueryBuilder<TRecord, TResult>;
