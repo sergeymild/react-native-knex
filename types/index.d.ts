@@ -891,6 +891,20 @@ export declare namespace Knex {
     on(column1: string, column2: string): JoinClause;
     on(column1: string, raw: Raw): JoinClause;
     on(column1: string, operator: string, column2: string | Raw): JoinClause;
+
+    onVal(column1: string, value: Value): JoinClause;
+    onVal(column1: string, operator: string, value: Value): JoinClause;
+    andOnVal(column1: string, value: Value): JoinClause;
+    andOnVal(column1: string, operator: string, value: Value): JoinClause;
+    orOnVal(column1: string, value: Value): JoinClause;
+    orOnVal(column1: string, operator: string, value: Value): JoinClause;
+
+    onIn(column1: string, values: readonly any[]): JoinClause;
+    orOnIn(column1: string, values: readonly any[]): JoinClause;
+    onNotIn(column1: string, values: readonly any[]): JoinClause;
+    orOnNotIn(column1: string, values: readonly any[]): JoinClause;
+
+
     using(
       column: string | readonly string[] | Raw | { [key: string]: string | Raw }
     ): JoinClause;
