@@ -1472,13 +1472,8 @@ export declare namespace Knex {
   interface Config<SV extends {} = any> {
     debug?: boolean;
     version?: string;
-    connection?: Sqlite3ConnectionConfig;
+    name?: string;
     log?: Logger;
-  }
-
-  /** Used with SQLite3 adapter */
-  interface Sqlite3ConnectionConfig {
-    filename: string;
   }
 
   type LogFn = (message: any) => void;

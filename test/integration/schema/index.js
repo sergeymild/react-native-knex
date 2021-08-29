@@ -100,10 +100,10 @@ module.exports = (knex) => {
       it('allows adding drop columns at once', async function () {
         await knex.schema.dropTableIfExists('test_table_two')
         await knex.schema.createTable('test_table_two', (t) => {
-            t.string('one');
-            t.string('two');
-            t.string('three');
-          })
+          t.string('one');
+          t.string('two');
+          t.string('three');
+        })
 
         await knex.schema.alterTable('test_table_two', (t) => {
           t.dropColumns(['one', 'two']);
