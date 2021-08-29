@@ -1,6 +1,5 @@
 'use strict';
 
-const omit = require('lodash.omit');
 const QueryBuilder = require('../../lib/query/builder');
 const Client = require('../../lib/client');
 
