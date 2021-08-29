@@ -2981,6 +2981,12 @@ describe('QueryBuilder', () => {
     );
   });
 
+  it('having between', () => {
+    testsql(qb().table('users').select('*').havingBetween('baz', [5, 10]), {
+      sqlite3: 'select * from `users` having `baz` between ? and ?',
+    });
+  });
+
   // TODO fix
   // it('should include join when deleting', () => {
   //   testsql(

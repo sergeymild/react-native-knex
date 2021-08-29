@@ -340,10 +340,6 @@ module.exports = function (knex) {
                 .orderBy('a2.id', 'asc')
                 .select(['a1.email', 'a2.email'])
                 .where(knex.raw('a1.id = 1'))
-                .options({
-                    nestTables: true,
-                    rowMode: 'array',
-                })
                 .limit(2)
                 .testSql(function (tester) {
                     tester(
