@@ -1263,7 +1263,15 @@ export declare namespace Knex {
     transacting(trx: Transaction): this;
     chunkSize(size: number): this;
     items(items: any[]): this
-    onConflict(tableName: string): OnConflictQueryBuilder<TRecord, TResult2>
+    onConflict<
+        TKey extends StrKey<TRecord>,
+        TResult2 = DeferredKeySelection.SetSingle<
+            DeferredKeySelection.Augment<UnwrapArrayMember<TResult>, TRecord, TKey>,
+            false
+            >[]
+        >(
+        columns: readonly TKey[]
+    ): OnConflictQueryBuilder<TRecord, TResult2>;
   }
 
   //
