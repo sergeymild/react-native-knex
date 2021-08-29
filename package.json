@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "eventemitter3": "^4.0.7",
-    "inherits": "^2.0.4",
     "lodash.tail": "^4.1.1",
     "lodash.groupby": "^4.6.0",
     "lodash.has": "^4.5.2",
