@@ -1,6 +1,6 @@
 {
   "name": "react-native-knex",
-  "version": "0.21.16",
+  "version": "1.0.0",
   "description": "A SQL query & schema builder for SQLite3",
   "main": "knex.js",
   "types": "types/index.d.ts",
