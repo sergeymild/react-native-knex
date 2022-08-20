@@ -1,6 +1,4 @@
 module.exports = {
     debug: true,
-    connection: {
-        filename: ":memory:"
-    },
+    name: "./db.sqlite",
 }

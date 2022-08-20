@@ -3,6 +3,7 @@ const { expect } = require('chai');
 module.exports = (knex) => {
   describe('Schema', () => {
     beforeEach(async () => {
+      await knex.raw('PRAGMA foreign_keys = ON;')
       await knex.schema
         .createTable('foreign_keys_table_two', (table) => {
           table.increments();
@@ -43,16 +44,9 @@ module.exports = (knex) => {
           });
           throw new Error("Shouldn't reach this");
         } catch (err) {
-          if (knex.client.driverName === 'sqlite3') {
-            expect(err.message).to.equal(
-              `insert into \`foreign_keys_table_one\` (\`fkey_three\`, \`fkey_two\`) values (99, 9999) - SQLITE_CONSTRAINT: FOREIGN KEY constraint failed`
-            );
-          }
-          if (knex.client.driverName === 'postgres') {
-            expect(err.message).to.equal(
-              `insert into "foreign_keys_table_one" ("fkey_three", "fkey_two") values ($1, $2) - insert or update on table "foreign_keys_table_one" violates foreign key constraint "foreign_keys_table_one_fkey_two_foreign"`
-            );
-          }
+          expect(err.message).to.equal(
+              `insert into \`foreign_keys_table_one\` (\`fkey_three\`, \`fkey_two\`) values (99, 9999)\nSQLITE_CONSTRAINT: FOREIGN KEY constraint failed`
+          );
           expect(err.message).to.include('constraint');
         }
 
